@@ -5,18 +5,13 @@
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </div>
 
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h3>{{ selectedDate }} 휴가자</h3>
-        <ul v-if="selectedEvents.length > 0">
-          <li v-for="(event, index) in selectedEvents" :key="index">
-            {{ event.title }}
-          </li>
-        </ul>
-        <p v-else>이 날은 휴가자가 없습니다.</p>
-        <button @click="closeModal">닫기</button>
-      </div>
-    </div>
+    <!-- 모달 컴포넌트 사용 -->
+    <CalendarModal  
+      v-if="showModal" 
+      :selectedDate="selectedDate" 
+      :selectedEvents="selectedEvents" 
+      @close="closeModal" 
+    />
   </div>
 </template>
 
@@ -27,6 +22,7 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
+import CalendarModal from "@/components/modals/CalendarModal.vue"; 
 
 const calendarRef = ref(null);
 const selectedDate = ref("");
@@ -71,7 +67,6 @@ const openEventModal = (date) => {
 const closeModal = () => {
   showModal.value = false;
 };
-
 </script>
 
 <style scoped>

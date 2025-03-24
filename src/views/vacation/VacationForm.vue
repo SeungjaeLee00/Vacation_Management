@@ -90,6 +90,7 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
+  gap:10px;
 }
 
 label {
