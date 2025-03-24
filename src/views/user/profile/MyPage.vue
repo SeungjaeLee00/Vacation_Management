@@ -104,7 +104,7 @@ const vacations = () => {
 
 button {
   background-color: #2699e6;
-  color: black ;
+  color: white ;
   border: none;
   padding: 10px;
   border-radius: 5px;

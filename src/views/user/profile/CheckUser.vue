@@ -92,11 +92,12 @@
   
   .btn {
     padding: 10px;
-  width: 48%;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
+    width: 48%;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color:white
   }
   
   .confirm {

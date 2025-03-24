@@ -66,7 +66,7 @@
     margin-top: 10px;
     padding: 8px 12px;
     background: #2699e6;
-    color: black;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;

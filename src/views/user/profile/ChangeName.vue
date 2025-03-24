@@ -86,6 +86,7 @@ const goToMyPage = () => {
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
+  color:white
 }
 
 .save {
