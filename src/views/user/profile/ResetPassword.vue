@@ -51,6 +51,7 @@ const goToMyPage = () => {
 .reset-password-card {
   padding:30px;
   width: 400px;
+  text-align: center;
 }
 
 .reset-password-title {

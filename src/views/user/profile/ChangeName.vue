@@ -37,12 +37,12 @@ const goToMyPage = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 
 .change-name-card{
   padding: 30px;
   width: 400px;
+  text-align: center;
 }
 
 .change-name-title {

@@ -111,6 +111,7 @@ export default {
     font-weight: bold;
     color: #333;
     margin-top:50px;
+    text-align: center;
 }
 
 .vacation-list-filter-container {
