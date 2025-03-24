@@ -4,6 +4,7 @@
       <h2 class="vacation-list-title">휴가 신청 내역</h2>
 
       <!-- 필터 영역 -->
+       <!-- 제대로 구현X, 나중에 자세히 구현해야 함 -->
       <div class="vacation-list-filter-container">
         <input v-model="searchText" type="text" placeholder="검색어 입력..." class="vacation-list-filter-input" />
         <select v-model="selectedStatus" class="vacation-list-filter-select">
