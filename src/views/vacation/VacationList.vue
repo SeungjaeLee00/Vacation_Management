@@ -70,13 +70,14 @@ export default {
       selectedLeave: null,
       currentPage: 1,
       itemsPerPage: 5,
-      leaves: [
-      { id: 1, requestDate: "2025-03-20", type: "연차", startDate: "2025-04-01", endDate: "2025-04-02", status: "승인됨", reason: "가족 여행" },
-      { id: 2, requestDate: "2025-03-21", type: "하계휴가", startDate: "2025-06-10", endDate: "2025-06-12", status: "대기 중", reason: "개인 사유" },
-      { id: 3, requestDate: "2025-03-22", type: "대체 휴가", startDate: "2025-05-05", endDate: "2025-05-06", status: "거절됨", reason: "건강 문제" },
-      { id: 4, requestDate: "2025-03-23", type: "포상 휴가", startDate: "2025-07-01", endDate: "2025-07-02", status: "승인됨", reason: "우수 성과 보상" },
-      { id: 5, requestDate: "2025-03-24", type: "연차", startDate: "2025-08-01", endDate: "2025-08-02", status: "대기 중", reason: "친구 결혼식 참석" },
-      { id: 6, requestDate: "2025-03-25", type: "하계휴가", startDate: "2025-09-10", endDate: "2025-09-12", status: "승인됨", reason: "여름 휴가" },
+      leaves: [ 
+      // 더미
+      // { id: 1, requestDate: "2025-03-20", type: "연차", startDate: "2025-04-01", endDate: "2025-04-02", status: "승인됨", reason: "가족 여행" },
+      // { id: 2, requestDate: "2025-03-21", type: "하계휴가", startDate: "2025-06-10", endDate: "2025-06-12", status: "대기 중", reason: "개인 사유" },
+      // { id: 3, requestDate: "2025-03-22", type: "대체 휴가", startDate: "2025-05-05", endDate: "2025-05-06", status: "거절됨", reason: "건강 문제" },
+      // { id: 4, requestDate: "2025-03-23", type: "포상 휴가", startDate: "2025-07-01", endDate: "2025-07-02", status: "승인됨", reason: "우수 성과 보상" },
+      // { id: 5, requestDate: "2025-03-24", type: "연차", startDate: "2025-08-01", endDate: "2025-08-02", status: "대기 중", reason: "친구 결혼식 참석" },
+      // { id: 6, requestDate: "2025-03-25", type: "하계휴가", startDate: "2025-09-10", endDate: "2025-09-12", status: "승인됨", reason: "여름 휴가" },
       ],
     };
   },

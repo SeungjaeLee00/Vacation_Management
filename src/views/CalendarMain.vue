@@ -30,12 +30,26 @@
   const showModal = ref(false);
 
   const events = ref([
-    { title: "이승재 휴가", start: "2025-03-25" },
-    { title: "0뫄뫄 휴가", start: "2025-03-27" },
-    { title: "1뫄뫄 휴가", start: "2025-03-27" },
-    { title: "2뫄뫄 휴가", start: "2025-03-27" },
-    { title: "3뫄뫄 휴가", start: "2025-03-27" },
-    { title: "4뫄뫄 휴가", start: "2025-03-27" },
+    // { title: "이승재 휴가", start: "2025-03-01" },
+    // { title: "이승재 휴가", start: "2025-03-01" },
+    // { title: "이승재 휴가", start: "2025-03-01" },
+    // { title: "이승재 휴가", start: "2025-03-04" },
+    // { title: "이승재 휴가", start: "2025-03-04" },
+    // { title: "이승재 휴가", start: "2025-03-04" },
+    // { title: "이승재 휴가", start: "2025-03-04" },
+    // { title: "이승재 휴가", start: "2025-03-13" },
+    // { title: "이승재 휴가", start: "2025-03-13" },
+    // { title: "이승재 휴가", start: "2025-03-13" },
+    // { title: "이승재 휴가", start: "2025-03-20" },
+    // { title: "이승재 휴가", start: "2025-03-20" },
+    // { title: "이승재 휴가", start: "2025-03-20" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-31" },
+    // { title: "이승재 휴가", start: "2025-03-31" },
+    // { title: "이승재 휴가", start: "2025-03-31" },
   ]);
 
   const calendarOptions = ref({
@@ -44,7 +58,7 @@
     locale: "ko",
     locales: [koLocale],
     events: events.value,
-    height: 550, // FullCalendar 전체 높이 
+    height: 650, // FullCalendar 전체 높이 
     contentHeight: 450, // 내부 콘텐츠 
     dayMaxEvents: 2,  // 같은 날에 2개까지만 표시하고, 초과 시 "+더보기" 버튼 자동 생성(FullCalendar에서 기본적으로 제공하는 기능)
     dateClick: (info) => openEventModal(info.dateStr),
@@ -95,6 +109,7 @@
   :deep(.fc) {
     font-size: 14px;
   }
+
 
 /* .vacation-button {
   position: fixed;

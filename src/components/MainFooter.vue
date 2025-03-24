@@ -20,13 +20,15 @@
     width: 100%;
     padding: 15px 20px;
     text-align: left;
-    position: fixed;
+    /* position: fixed; */
     bottom: 0;
     left: 0;
     font-size: 14px;
     border-top: 2px solid #ddd;
     display: flex;
     justify-content: center;
+    height: 80px;
+    margin-top: auto;
   }
   
   .footer-content {
@@ -46,5 +48,6 @@
     width: 130px;
     height: auto;
   }
+
 </style>
   

@@ -1,7 +1,9 @@
 <template>
   <div id="app">
-    <MainHeader /> 
-    <router-view />
+    <MainHeader />
+    <main class="content">
+      <router-view />
+    </main>
     <MainFooter />
   </div>
 </template>
@@ -9,7 +11,6 @@
 <script>
 import MainHeader from "./components/MainHeader.vue";
 import MainFooter from "./components/MainFooter.vue";
-
 
 export default {
   components: {
@@ -20,9 +21,15 @@ export default {
 </script>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  /* background-color: #f4f4f4; */
-}
+  #app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; 
+  }
+
+  .content {
+    flex-grow: 1;
+    overflow-y: auto;  /* 내용이 많으면 스크롤 */
+    padding: 20px;
+  }
 </style>
