@@ -137,16 +137,17 @@ export default {
 }
 
 table {
-  width: 100%;
+  width:95%;
+  justify-self: center;
   border-collapse: collapse;
-  background: white;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top:20px;
 }
 
 th {
-  background: #4a90e2;
+  background: #2699e6;
   color: white;
   padding: 12px;
 }
@@ -172,7 +173,7 @@ button {
 }
 
 button.bg-blue-500 {
-  background: #4a90e2;
+  background: #2699e6;
   color: white;
 }
 
