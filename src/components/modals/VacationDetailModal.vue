@@ -1,10 +1,10 @@
 <template>
   <!-- 모달 바깥 영역 (오버레이) 클릭하면 닫히도록 설정 -->
-  <div v-if="leave" class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content">
-      <h3 class="modal-title">휴가 상세 정보</h3>
+  <div v-if="leave" class="vdm-modal-overlay" @click.self="$emit('close')">
+    <div class="vdm-modal-content">
+      <h3 class="vdm-modal-title">휴가 상세 정보</h3>
       <p><strong>휴가 사유:</strong> {{ leave.reason }}</p>
-      <button @click="$emit('close')" class="modal-close">닫기</button>
+      <button @click="$emit('close')" class="vdm-modal-close">닫기</button>
     </div>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
 </script>
 
 <style scoped>
-.modal-overlay {
+.vdm-modal-overlay {
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
@@ -30,7 +30,7 @@ export default {
 }
 
 /* 모달 컨텐츠 */
-.modal-content {
+.vdm-modal-content {
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -40,27 +40,24 @@ export default {
 }
 
 /* 제목 스타일 */
-.modal-title {
+.vdm-modal-title {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 12px;
 }
 
 /* 닫기 버튼 */
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #e53e3e;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+.vdm-modal-close {
+  margin-top: 10px;
+    padding: 8px 12px;
+    background: #2699e6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.modal-close:hover {
-  background: #c53030;
+.vdm-modal-close:hover {
+  background: #0056b3;
 }
 </style>
