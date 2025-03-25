@@ -1,7 +1,7 @@
 <template>
     <div class="cm-modal-overlay" @click.self="$emit('close')">
       <div class="cm-modal-content">
-        <h3>{{ selectedDate }} 휴가자</h3>
+        <h3>{{ formattedDate }}</h3>
         <ul v-if="selectedEvents.length > 0">
           <li v-for="(event, index) in selectedEvents" :key="index">
             {{ event.title }}
@@ -14,11 +14,20 @@
   </template>
   
   <script>
+  import dayjs from 'dayjs';
+
   export default {
     props: {
       selectedDate: String,
       selectedEvents: Array,
     },
+
+    // 날자 포맷
+    computed: {
+    formattedDate() {
+      return dayjs(this.selectedDate).format('YYYY년 M월 D일');
+    },
+  },
   };
   </script>
   

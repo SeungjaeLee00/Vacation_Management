@@ -22,6 +22,7 @@
   import interactionPlugin from "@fullcalendar/interaction";
   import koLocale from "@fullcalendar/core/locales/ko";
   import CalendarModal from "@/components/modals/CalendarModal.vue"; 
+  // import dayjs from "dayjs";
 
   const calendarRef = ref(null);
   const selectedDate = ref("");
