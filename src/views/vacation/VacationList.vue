@@ -57,129 +57,136 @@
 
 
 <script>
-import VuePagination from "@/components/VuePagination.vue";
-import VacationDetailModal from "@/components/modals/VacationDetailModal.vue";
+  import VuePagination from "@/components/VuePagination.vue";
+  import VacationDetailModal from "@/components/modals/VacationDetailModal.vue";
 
 
-export default {
-  components: { VuePagination, VacationDetailModal },
-  data() {
-    return {
-      searchText: "",
-      selectedStatus: "",
-      selectedLeave: null,
-      currentPage: 1,
-      itemsPerPage: 5,
-      leaves: [ 
-      // 더미
-      // { id: 1, requestDate: "2025-03-20", type: "연차", startDate: "2025-04-01", endDate: "2025-04-02", status: "승인됨", reason: "가족 여행" },
-      // { id: 2, requestDate: "2025-03-21", type: "하계휴가", startDate: "2025-06-10", endDate: "2025-06-12", status: "대기 중", reason: "개인 사유" },
-      // { id: 3, requestDate: "2025-03-22", type: "대체 휴가", startDate: "2025-05-05", endDate: "2025-05-06", status: "거절됨", reason: "건강 문제" },
-      // { id: 4, requestDate: "2025-03-23", type: "포상 휴가", startDate: "2025-07-01", endDate: "2025-07-02", status: "승인됨", reason: "우수 성과 보상" },
-      // { id: 5, requestDate: "2025-03-24", type: "연차", startDate: "2025-08-01", endDate: "2025-08-02", status: "대기 중", reason: "친구 결혼식 참석" },
-      // { id: 6, requestDate: "2025-03-25", type: "하계휴가", startDate: "2025-09-10", endDate: "2025-09-12", status: "승인됨", reason: "여름 휴가" },
-      ],
-    };
-  },
-  computed: {
-    filteredLeaves() {
-      return this.leaves.filter(leave => 
-        (this.searchText === "" || leave.type.includes(this.searchText)) &&
-        (this.selectedStatus === "" || leave.status === this.selectedStatus)
-      );
+  export default {
+    components: { VuePagination, VacationDetailModal },
+    data() {
+      return {
+        searchText: "",
+        selectedStatus: "",
+        selectedLeave: null,
+        currentPage: 1,
+        itemsPerPage: 5,
+        leaves: [ 
+        // 더미
+        { id: 1, requestDate: "2025-03-20", type: "연차", startDate: "2025-04-01", endDate: "2025-04-02", status: "승인됨", reason: "가족 여행" },
+        { id: 2, requestDate: "2025-03-21", type: "하계휴가", startDate: "2025-06-10", endDate: "2025-06-12", status: "대기 중", reason: "개인 사유" },
+        { id: 3, requestDate: "2025-03-22", type: "대체 휴가", startDate: "2025-05-05", endDate: "2025-05-06", status: "거절됨", reason: "건강 문제" },
+        { id: 4, requestDate: "2025-03-23", type: "포상 휴가", startDate: "2025-07-01", endDate: "2025-07-02", status: "승인됨", reason: "우수 성과 보상" },
+        { id: 5, requestDate: "2025-03-24", type: "연차", startDate: "2025-08-01", endDate: "2025-08-02", status: "대기 중", reason: "친구 결혼식 참석" },
+        { id: 6, requestDate: "2025-03-25", type: "하계휴가", startDate: "2025-09-10", endDate: "2025-09-12", status: "승인됨", reason: "여름 휴가" },
+        ],
+      };
     },
-    totalPages() {
-      return Math.ceil(this.filteredLeaves.length / this.itemsPerPage);
+    computed: {
+      filteredLeaves() {
+        return this.leaves.filter(leave => 
+          (this.searchText === "" || leave.type.includes(this.searchText)) &&
+          (this.selectedStatus === "" || leave.status === this.selectedStatus)
+        );
+      },
+      totalPages() {
+        return Math.ceil(this.filteredLeaves.length / this.itemsPerPage);
+      },
+      paginatedLeaves() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        return this.filteredLeaves.slice(start, start + this.itemsPerPage);
+      },
     },
-    paginatedLeaves() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      return this.filteredLeaves.slice(start, start + this.itemsPerPage);
+    methods: {
+      viewDetails(leave) {
+        this.selectedLeave = leave;
+      },
     },
-  },
-  methods: {
-    viewDetails(leave) {
-      this.selectedLeave = leave;
-    },
-  },
-};
+  };
 </script>
 
 
 <style scoped>
-.vacation-list-title{
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    margin-top:50px;
+  .vacation-list-title{
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin-top:50px;
+      text-align: center;
+  }
+
+  .vacation-list-filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .vacation-list-filter-input, .vacation-list-filter-select {
+    border: 1px solid #d1d5db;
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .vacation-list-filter-input:focus, .vacation-list-filter-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  }
+
+  .vacation-list-filter-reset-btn {
+    background-color: #6b7280; 
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+  }
+
+  .vacation-list-filter-reset-btn:hover {
+    background-color: #4b5563; 
+  }
+
+  .vacation-list-table {
+    width: 95%;
+    border-collapse: collapse;
+    justify-self: center;
+    margin-top: 20px;
+  }
+
+  .vacation-list-table th,
+  .vacation-list-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
     text-align: center;
-}
+  }
 
-.vacation-list-filter-container {
-  display: flex;
-  align-items: center;
-  justify-content: center; 
-  gap: 10px;
-  margin-bottom: 16px;
-}
+  .vacation-list-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
 
-.vacation-list-filter-input, .vacation-list-filter-select {
-  border: 1px solid #d1d5db;
-  padding: 8px;
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
+  .vacation-list-detail-btn {
+    background-color: #2699e6;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-.vacation-list-filter-input:focus, .vacation-list-filter-select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
-}
+  .vacation-list-detail-btn:hover {
+    background-color: #0056b3;
+  }
 
-.vacation-list-filter-reset-btn {
-  background-color: #6b7280; 
-  color: white;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  border: none;
-}
-
-.vacation-list-filter-reset-btn:hover {
-  background-color: #4b5563; 
-}
-
-.vacation-list-table {
-  width: 95%;
-  border-collapse: collapse;
-  justify-self: center;
-  margin-top: 20px;
-}
-
-.vacation-list-table th,
-.vacation-list-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
-}
-
-.vacation-list-table th {
-  background-color: #f4f4f4;
-  font-weight: bold;
-}
-
-.vacation-list-detail-btn {
-  background-color: #2699e6;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.vacation-list-detail-btn:hover {
-  background-color: #0056b3;
-}
+  @media (max-width: 768px) {
+    .vacation-list-table th,
+    .vacation-list-table td {
+      font-size: 12px; 
+    }
+  }
 
 </style>
 

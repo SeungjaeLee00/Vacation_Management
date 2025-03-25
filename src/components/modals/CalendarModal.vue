@@ -7,7 +7,7 @@
             {{ event.title }}
           </li>
         </ul>
-        <p v-else>이 날은 휴가자가 없습니다.</p>
+        <p v-else>해당 일자는 휴가자가 없습니다.</p>
         <button @click="$emit('close')" class="cm-modal-close">닫기</button>
       </div>
     </div>
