@@ -61,19 +61,64 @@
     contentHeight: 450, // 내부 콘텐츠 
     dayMaxEvents: 2,  // 같은 날에 2개까지만 표시하고, 초과 시 "+더보기" 버튼 자동 생성(FullCalendar에서 기본적으로 제공하는 기능)
     dateClick: (info) => openEventModal(info.dateStr),
+    headerToolbar: { // 달력의 상단 툴바 설정
+      left: 'prev,next today',
+      center: 'title',         
+      right: 'dayGridMonth,dayGridWeek' 
+  },
+   // 반응형을 위한 추가 옵션
+   windowResize: function() {
+    adjustCalendarSize();
+  },
   });
 
-  onMounted(() => {
-    if (calendarRef.value) {
-      console.log("FullCalendar Mounted:", calendarRef.value.getApi());
+  // 반응형 설정을 위한 계산된 값
+  const adjustCalendarSize = () => {
+    const windowWidth = window.innerWidth;
+
+    // 화면이 768px 이하일 경우
+    if (windowWidth <= 768) {
+      calendarOptions.value.height = 350; // 높이 줄이기
+      calendarOptions.value.contentHeight = 250; // 콘텐츠 높이 줄이기
+      calendarOptions.value.dayMaxEvents = 0;  // 더 적은 이벤트 표시, "+더보기" 버튼 바로 보이게
+      calendarOptions.value.headerToolbar = {
+        left: 'prev,next', 
+        center: 'title',  
+        right: ''          // 우측 버튼 없애기
+    };
+    } else {
+      // 기본 크기로 설정
+      calendarOptions.value.height = 650;
+      calendarOptions.value.contentHeight = 450;
+      calendarOptions.value.dayMaxEvents = 2;
+      calendarOptions.value.headerToolbar = { // 기본 툴바
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,dayGridWeek'
+    };
     }
+  };
+
+  onMounted(() => {
+    // FullCalendar 초기화 및 반응형 설정 적용
+    if (calendarRef.value) {
+      adjustCalendarSize(); // 화면 크기에 맞는 초기화
+      calendarRef.value.getApi(); 
+    }
+
+    // 화면 크기 변경 시마다 적용
+    window.addEventListener('resize', adjustCalendarSize);
   });
 
   onUnmounted(() => {
+    // FullCalendar 인스턴스를 제거
     if (calendarRef.value) {
       calendarRef.value.getApi().destroy();
     }
   });
+
+  // 리스너 정리
+  window.removeEventListener('resize', adjustCalendarSize);
 
   const openEventModal = (date) => {
     selectedDate.value = date;
@@ -96,9 +141,8 @@
   }
 
   .calendar-container {
-    width: 100vw;
+    width: 90vw;
     max-width: 1000px;
-    
     padding: 10px;
     position: relative;
     z-index: 1;
@@ -106,7 +150,13 @@
 
   /* FullCalendar 크기 줄이기 */
   :deep(.fc) {
-    font-size: 14px;
+    font-size: 15px;
+  }
+
+  @media(max-width: 768px){
+    :deep(.fc) {
+      font-size: 11px;
+    }
   }
 
 /* .vacation-button {
