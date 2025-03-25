@@ -34,7 +34,8 @@
             <td>{{ leave.type }}</td>
             <td>{{ leave.startDate }}</td>
             <td>{{ leave.endDate }}</td>
-            <td>{{ leave.status }}</td>
+            <!-- <td>{{ leave.status }}</td> -->
+            <td :class="statusClass(leave.status)">{{ leave.status }}</td>
             <td class="vacation-list-text-center">
               <button @click="viewDetails(leave)" class="vacation-list-detail-btn">보기</button>
             </td>
@@ -99,6 +100,12 @@
     methods: {
       viewDetails(leave) {
         this.selectedLeave = leave;
+      },
+      statusClass(status) {
+        if (status === "승인됨") return "status-approved";
+        if (status === "대기 중") return "status-pending";
+        if (status === "거절됨") return "status-rejected";
+        return "";
       },
     },
   };
@@ -166,6 +173,20 @@
   .vacation-list-table th {
     background-color: #f4f4f4;
     font-weight: bold;
+  }
+
+   /* 상태별 텍스트 색상 */
+
+  .status-approved {
+    background-color: #d4edda; /* 초록 */
+  }
+
+  .status-pending {
+    background-color: #fff3cd; /* 노랑 */
+  }
+
+  .status-rejected {
+    background-color: #f8d7da; /* 빨강 */
   }
 
   .vacation-list-detail-btn {
