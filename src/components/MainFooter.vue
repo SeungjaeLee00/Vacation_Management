@@ -13,10 +13,11 @@
   
 <script setup>
   import { ref, watchEffect } from "vue";
-  import logoLong from "@/assets/ta9_logo_long.png";
-  import logoShort from "@/assets/ta9_logo.png";
  
   // 화면 크기에 따라 로고 이미지 설정
+  const logoLong = require("@/assets/ta9_logo_long.png");
+  const logoShort = require("@/assets/ta9_logo.png");
+
   const footerLogo = ref(logoLong);
   const logoClass = ref("footer-logo-long");
   
@@ -73,7 +74,7 @@
   }
 
   .footer-logo-short {
-    width: 80px;  
+    width: 60px;  
     height: auto;
   }
 

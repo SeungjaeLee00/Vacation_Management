@@ -1,7 +1,7 @@
 <template>
   <header class="main-header">
     <div class="logo-container">
-      <img :src="logo" alt="로고" class="logo" @click="goToMainPage" />
+      <img :src="headerLogo" :class="logoClass" alt="로고" @click="goToMainPage" />
       <h1 class="title" @click="goToMainPage">휴가 계획표</h1>
     </div>
     <nav :class="{ 'nav-open': isNavOpen }">
@@ -20,14 +20,29 @@
 </template>
 
 <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, watchEffect } from "vue";
   import { useRouter } from "vue-router";
+
+  const logoLong = require("@/assets/ta9_logo_long.png");
+  const logoShort = require("@/assets/ta9_logo.png");
 
   const router = useRouter();
   const isLoggedIn = ref(false); // 로그인 상태 (추후 실제 인증 로직 적용)
   const isNavOpen = ref(false);  // 메뉴 토글 상태
 
-  const logo = require("@/assets/ta9_logo_long.png");
+  const headerLogo = ref(logoLong);
+  const logoClass = ref("header-logo-long")
+
+    // 화면 크기 감지하여 로고 변경
+  const updateLogo = () => {
+    if (window.innerWidth <= 768) {
+      headerLogo.value = logoShort;
+      logoClass.value = "header-logo-short"; 
+    } else {
+      headerLogo.value = logoLong;
+      logoClass.value = "header-logo-long"; 
+    }
+  };
 
   const goToVacationForm = () => {
     router.push("/vacation-form");
@@ -59,6 +74,12 @@
       isNavOpen.value = false; // 메뉴 닫기
     });
   });
+  
+  // 페이지 로드 시 및 창 크기 변경 시 로고 업데이트
+  watchEffect(() => {
+    updateLogo();
+    window.addEventListener("resize", updateLogo);
+  });
 </script>
 
 <style scoped>
@@ -76,10 +97,20 @@
     gap: 10px; 
   }
 
-  .logo {
+  /* .logo {
+    width: 150px;
+    height: auto;
+  } */
+
+  .header-logo-long {
     width: 150px;
     height: auto;
     cursor: pointer;
+  }
+
+  .header-logo-short {
+    width: 60px;  
+    height: auto;
   }
 
   .title {
