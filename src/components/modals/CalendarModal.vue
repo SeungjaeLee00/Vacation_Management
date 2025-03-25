@@ -55,7 +55,7 @@
   }
   
   .cm-modal-content h3 {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
   
   .cm-modal-content ul {
