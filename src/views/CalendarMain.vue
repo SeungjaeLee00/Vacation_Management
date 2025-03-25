@@ -15,7 +15,6 @@
   </div>
 </template>
 
-
 <script setup>
   import { ref, onMounted, onUnmounted } from "vue";
   import FullCalendar from "@fullcalendar/vue3";
@@ -109,7 +108,6 @@
   :deep(.fc) {
     font-size: 14px;
   }
-
 
 /* .vacation-button {
   position: fixed;
