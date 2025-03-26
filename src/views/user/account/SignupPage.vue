@@ -159,7 +159,8 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 
 button:hover {
