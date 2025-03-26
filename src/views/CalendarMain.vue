@@ -30,26 +30,10 @@
   const showModal = ref(false);
 
   const events = ref([
-    // { title: "이승재 휴가", start: "2025-03-01" },
-    // { title: "이승재 휴가", start: "2025-03-01" },
-    // { title: "이승재 휴가", start: "2025-03-01" },
-    // { title: "이승재 휴가", start: "2025-03-04" },
-    // { title: "이승재 휴가", start: "2025-03-04" },
-    // { title: "이승재 휴가", start: "2025-03-04" },
-    // { title: "이승재 휴가", start: "2025-03-04" },
-    // { title: "이승재 휴가", start: "2025-03-13" },
-    // { title: "이승재 휴가", start: "2025-03-13" },
-    // { title: "이승재 휴가", start: "2025-03-13" },
-    // { title: "이승재 휴가", start: "2025-03-20" },
-    // { title: "이승재 휴가", start: "2025-03-20" },
-    // { title: "이승재 휴가", start: "2025-03-20" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-31" },
-    // { title: "이승재 휴가", start: "2025-03-31" },
-    // { title: "이승재 휴가", start: "2025-03-31" },
+    // DB 연동X, 더미 데이터터
+    { title: "이승재 휴가", start: "2025-03-25" },
+    { title: "이승재 휴가", start: "2025-03-25" },
+    { title: "이승재 휴가", start: "2025-03-25" },
   ]);
 
   const calendarOptions = ref({
