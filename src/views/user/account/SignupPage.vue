@@ -40,6 +40,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from "vue-router";  
+import axios from 'axios';  
 
 // 데이터 속성
 const employeeId = ref("");
@@ -51,8 +53,9 @@ const password = ref("");
 const confirmPassword = ref("");
 const isCodeSent = ref(false);
 const verificationCode = ref("");
-const correctCode = ref("");
 const isVerified = ref(false);
+
+const router = useRouter();
 
 // 전체 이메일 계산
 const fullEmail = computed(() => {
@@ -70,10 +73,16 @@ const sendVerificationCode = async () => {
   }
 
   try {
-    correctCode.value = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`인증번호: ${correctCode.value}`);  // 실제 API 구현 시 이메일 전송
-    isCodeSent.value = true;
-    alert(`인증번호가 ${fullEmail.value} 로 전송되었습니다.`);
+    // 이메일 인증 요청을 서버로 보내는 API 호출
+    const response = await axios.post(`http://localhost:8088/api/users/send-verification-code?email=${fullEmail.value}`);
+
+    // 서버 응답이 성공이면 인증번호 전송 처리
+    if (response.data === "인증 코드가 발송되었습니다.") {
+      isCodeSent.value = true;
+      alert(`인증번호가 ${fullEmail.value} 로 전송되었습니다.`);
+    } else {
+      alert("인증번호 전송에 실패했습니다.");
+    }
   } catch (error) {
     alert("인증번호 전송에 실패했습니다.");
     console.error(error);
@@ -81,30 +90,66 @@ const sendVerificationCode = async () => {
 };
 
 // 인증번호 확인
-const verifyCode = () => {
-  if (verificationCode.value === correctCode.value) {
-    isVerified.value = true;
-    alert("이메일 인증이 완료되었습니다.");
-  } else {
-    alert("인증번호가 올바르지 않습니다.");
+const verifyCode = async () => {
+  if (!verificationCode.value) {
+    alert("인증번호를 입력해주세요.");
+    return;
+  }
+
+  try {
+    const response = await axios.post("http://localhost:8088/api/users/verify-code", null, {
+      params: {
+        email: fullEmail.value,
+        code: verificationCode.value,
+      },
+    });
+
+    if (response.data.success) {
+      isVerified.value = true;
+      alert("이메일 인증이 완료되었습니다.");
+    } else {
+      alert("인증번호가 올바르지 않습니다.");
+    }
+  } catch (error) {
+    alert("인증번호 확인에 실패했습니다.");
+    console.error(error);
   }
 };
 
 // 회원가입 폼 제출
-const submitForm = () => {
-  if (!isVerified.value) {
-    alert("이메일 인증을 완료해주세요.");
-    return;
-  }
-  if (password.value !== confirmPassword.value) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
-  }
+const submitForm = async () => {
+    if (!isVerified.value) {
+      alert("이메일 인증을 완료해주세요.");
+      return;
+    }
+    if (password.value !== confirmPassword.value) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
 
-  alert("회원가입이 완료되었습니다!");
-  // 회원가입 API 연동 필요
-};
+    // 백엔드로 회원가입 요청 보내기
+    try {
+      const response = await axios.post("http://localhost:8088/api/users/register", {
+        employeeId: employeeId.value,
+        name: name.value,
+        email: fullEmail.value,
+        password: password.value,
+        confirmPassword: confirmPassword.value,
+        emailVerified: true  // 이메일 인증 완료 여부
+      });
+
+      alert(response.data);  // 백엔드에서 받은 응답
+
+      // 회원가입 성공 후 메인 페이지로 이동
+      router.push("/home");
+
+    } catch (error) {
+      alert("회원가입에 실패했습니다.");
+      console.error(error);
+    }
+  };
 </script>
+
 
 
 <style scoped>
