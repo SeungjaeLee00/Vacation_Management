@@ -56,6 +56,7 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
   }
 
   .link-to {

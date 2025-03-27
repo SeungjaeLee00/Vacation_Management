@@ -1,51 +1,40 @@
 <template>
-    <div class="mypage-container">
-      <h2 class="mypage-title">마이페이지</h2>
-      <div class="divider"></div>
+  <div class="mypage-container">
+    <h2 class="mypage-title">마이페이지</h2>
+    <div class="divider"></div>
 
-      <div class="mypage-vacation-balance">
-        <span class="mypage-highlighted-text">
-          <p>잔여 휴가수 <span class="highlight">{{ remainingLeaves }}</span>일</p>
-
-        </span>
-      </div>
-      
-      <div class="mypage-button-group">
-        <button @click="goToMainPage">달력 보기</button>
-        <button @click="goToCheckUser('/change-name')">이름 바꾸기</button>
-        <button @click="goToCheckUser('/change-password')">비밀번호 바꾸기</button>
-        <button @click="vacations">휴가 신청 내역 조회</button>
-      </div>
+    <div class="mypage-vacation-balance">
+      <span class="mypage-highlighted-text">
+        <p>잔여 휴가수 <span class="highlight">{{ remainingLeaves }}</span>일</p>
+      </span>
     </div>
-  </template>
+    
+    <div class="mypage-button-group">
+      <button @click="goToMainPage">달력 보기</button>
+      <button @click="goToCheckUser('/change-name')">이름 바꾸기</button>
+      <button @click="goToCheckUser('/change-password')">비밀번호 바꾸기</button>
+      <button @click="vacations">휴가 신청 내역 조회</button>
+    </div>
+  </div>
+</template>
 
 <script setup>
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 // 잔여 휴가 수 
-// 예제: 10일 남음 -> 나중에 다시 구현해야 함..(이커머스에서 데이터 불러 올 수 있나)
+// 예제: 10일 남음 -> 나중에 다시 구현해야 함..
 const remainingLeaves = ref(10);
-  
 const router = useRouter();
 
 const goToMainPage = () => {
     router.push("/home");
 }
 
-// const changeName = () => {
-//     router.push("/change-name");
-// }
-
-// const changePassword = () => {
-//     router.push("/change-password");
-// }
-
 // 비밀번호 확인 페이지로 이동하면서 `nextRoute` 전달
 const goToCheckUser = (nextRoute) => {
   router.push({ path: "/check-user", query: { nextRoute } });
 };
-
 
 const vacations = () => {
     router.push("/vacations");

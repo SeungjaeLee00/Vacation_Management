@@ -9,6 +9,9 @@
         <li><button @click="goToVacationForm">휴가 신청</button></li>
         <li><button @click="goToMyPage">마이페이지</button></li>
         <li><button @click="handleAuth">{{ isLoggedIn ? "로그아웃" : "로그인" }}</button></li>
+        <div class="notification-icon" @click="toggleSidebar">
+          <img src="@/assets/noti_bell.png" alt="알림" />
+        </div>
       </ul>
       <button class="menu-toggle" @click="toggleNav">  <!-- 햄버거 헤더 -->
         <span class="bar"></span>
@@ -16,6 +19,7 @@
         <span class="bar"></span>
       </button>
     </nav>
+  
   </header>
 </template>
 
@@ -29,6 +33,16 @@
   const router = useRouter();
   const isLoggedIn = ref(false); // 로그인 상태 (추후 실제 인증 로직 적용)
   const isNavOpen = ref(false);  // 메뉴 토글 상태
+
+  
+  // 사이드바 토글 상태
+  const isSidebarVisible = ref(false);
+
+  // 사이드바 열기/닫기 토글 함수
+  const toggleSidebar = () => {
+    isSidebarVisible.value = !isSidebarVisible.value;
+  };
+
 
   const headerLogo = ref(logoLong);
   const logoClass = ref("header-logo-long")
@@ -147,6 +161,19 @@
   nav button:hover {
     color: #2699e6;
   }
+
+  /* 알림 아이콘 */
+  .notification-icon {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+
+  .notification-icon img {
+    width: 24px;
+    height: 24px;
+  }
+
 
   /* 햄버거 메뉴 */
   .menu-toggle {

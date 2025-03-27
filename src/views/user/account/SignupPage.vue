@@ -5,12 +5,6 @@
       <form @submit.prevent="submitForm">
         <input type="number" placeholder="사번" v-model="employeeId" required />
         <input type="text" placeholder="이름" v-model="name" required />
-        
-        <!-- <div class="email-verification">
-          <input type="email" placeholder="이메일" v-model="email" required />
-          <button type="button" @click="sendVerificationCode" :disabled="isCodeSent">인증</button>
-        </div> -->
-
         <div class="email-verification">
           <input type="text" placeholder="이메일 아이디" v-model="emailId" required />
           <span>@</span>
@@ -44,73 +38,74 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "SignupPage",
-  data() {
-    return {
-      employeeId: "",
-      name: "",
-      emailId: "",
-      selectedDomain: "",
-      customDomain: "",
-      password: "",
-      confirmPassword: "",
-      isCodeSent: false,
-      verificationCode: "",
-      correctCode: "",
-      isVerified: false,
-    };
-  },
-  computed: {
-    fullEmail() {
-      if (this.selectedDomain === "직접 입력") {
-        return this.emailId && this.customDomain ? `${this.emailId}@${this.customDomain}` : "";
-      }
-      return this.emailId && this.selectedDomain ? `${this.emailId}@${this.selectedDomain}` : "";
-    },
-  },
-  methods: {
-    async sendVerificationCode() {
-      if (!this.fullEmail) {
-        alert("이메일을 입력해주세요.");
-        return;
-      }
+<script setup>
+import { ref, computed } from 'vue';
 
-      try {
-        this.correctCode = Math.floor(100000 + Math.random() * 900000).toString();
-        console.log(`인증번호: ${this.correctCode} (실제 구현 시 이메일 전송)`);
-        this.isCodeSent = true;
-        alert(`인증번호가 ${this.fullEmail} 로 전송되었습니다.`);
-      } catch (error) {
-        alert("인증번호 전송에 실패했습니다.");
-        console.error(error);
-      }
-    },
-    verifyCode() {
-      if (this.verificationCode === this.correctCode) {
-        this.isVerified = true;
-        alert("이메일 인증이 완료되었습니다.");
-      } else {
-        alert("인증번호가 올바르지 않습니다.");
-      }
-    },
-    submitForm() {
-      if (!this.isVerified) {
-        alert("이메일 인증을 완료해주세요.");
-        return;
-      }
-      if (this.password !== this.confirmPassword) {
-        alert("비밀번호가 일치하지 않습니다.");
-        return;
-      }
+// 데이터 속성
+const employeeId = ref("");
+const name = ref("");
+const emailId = ref("");
+const selectedDomain = ref("");
+const customDomain = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const isCodeSent = ref(false);
+const verificationCode = ref("");
+const correctCode = ref("");
+const isVerified = ref(false);
 
-      alert("회원가입이 완료되었습니다!");
-      // 회원가입 API 연동 필요
-    },
-  },
+// 전체 이메일 계산
+const fullEmail = computed(() => {
+  if (selectedDomain.value === "직접 입력") {
+    return emailId.value && customDomain.value ? `${emailId.value}@${customDomain.value}` : "";
+  }
+  return emailId.value && selectedDomain.value ? `${emailId.value}@${selectedDomain.value}` : "";
+});
+
+// 인증번호 전송
+const sendVerificationCode = async () => {
+  if (!fullEmail.value) {
+    alert("이메일을 입력해주세요.");
+    return;
+  }
+
+  try {
+    correctCode.value = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`인증번호: ${correctCode.value}`);  // 실제 API 구현 시 이메일 전송
+    isCodeSent.value = true;
+    alert(`인증번호가 ${fullEmail.value} 로 전송되었습니다.`);
+  } catch (error) {
+    alert("인증번호 전송에 실패했습니다.");
+    console.error(error);
+  }
+};
+
+// 인증번호 확인
+const verifyCode = () => {
+  if (verificationCode.value === correctCode.value) {
+    isVerified.value = true;
+    alert("이메일 인증이 완료되었습니다.");
+  } else {
+    alert("인증번호가 올바르지 않습니다.");
+  }
+};
+
+// 회원가입 폼 제출
+const submitForm = () => {
+  if (!isVerified.value) {
+    alert("이메일 인증을 완료해주세요.");
+    return;
+  }
+  if (password.value !== confirmPassword.value) {
+    alert("비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  alert("회원가입이 완료되었습니다!");
+  // 회원가입 API 연동 필요
 };
 </script>
+
 
 <style scoped>
 .auth-container {
@@ -161,6 +156,7 @@ button {
   cursor: pointer;
   margin-top: 5px;
   margin-bottom: 10px;
+  font-weight: bold;
 }
 
 button:hover {

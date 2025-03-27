@@ -16,6 +16,7 @@ const routes = [
   { path: "/signup", component: SignupPage },
   { path: "/home", component: CalendarMain },
   { path: "/mypage", component: MyPage },
+
   { path: "/vacations", component: VacationList },
   { path: "/vacation-form", component: VacationForm },
   { path: "/find-password", component: ForgotPassword },

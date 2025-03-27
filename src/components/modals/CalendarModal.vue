@@ -13,23 +13,22 @@
     </div>
   </template>
   
-  <script>
+  <script setup>
+  import { computed, defineProps } from 'vue';
   import dayjs from 'dayjs';
-
-  export default {
-    props: {
-      selectedDate: String,
-      selectedEvents: Array,
-    },
-
-    // 날자 포맷
-    computed: {
-    formattedDate() {
-      return dayjs(this.selectedDate).format('YYYY년 M월 D일');
-    },
-  },
-  };
+  
+  // props 선언 (setup에서는 defineProps로 자동 사용)
+  const props = defineProps({
+    selectedDate: String,
+    selectedEvents: Array,
+  });
+  
+  // 날짜 포맷 계산
+  const formattedDate = computed(() => {
+    return dayjs(props.selectedDate).format('YYYY년 M월 D일');
+  });
   </script>
+  
   
   <style scoped>
   .cm-modal-overlay {
