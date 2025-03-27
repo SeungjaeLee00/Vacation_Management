@@ -21,7 +21,6 @@ const routes = [
   { path: "/vacation-form", component: VacationForm },
   { path: "/find-password", component: ForgotPassword },
 
-  
   { path: "/check-user", component: CheckUser }, 
   { path: "/change-password", component: ResetPassword },
   { path: "/change-name", component: ChangeName },
