@@ -16,6 +16,7 @@
     "axios": "^1.8.4",
     "core-js": "^3.8.3",
     "dayjs": "^1.11.13",
+    "js-cookie": "^3.0.5",
     "vue": "^3.2.13",
     "vue-flatpickr-component": "^11.0.5",
     "vue-router": "^4.5.0"

@@ -31,4 +31,30 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('Token'));
+
+  // console.log(token);
+  // if (token) {
+  //   const tokenValue = token.split('Token')[1];
+  //   console.log(tokenValue);
+  // } else {
+  //   console.log('Token이 없습니다');
+  // }
+
+  // 로그인 관련 조건 검사
+  if (to.path === '/login' || to.path === '/signup' || to.path === '/find-password') {
+    return next();  // 로그인, 회원가입, 비밀번호 찾기 페이지로 이동할 수 있게 허용
+  }
+
+  // 토큰이 없으면 로그인 페이지로 리다이렉트
+  if (!token) {
+    return next('/login');
+  }
+
+  // 모든 조건 통과하면 이동동
+  next();
+});
+
 export default router;
+

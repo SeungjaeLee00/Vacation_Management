@@ -2,16 +2,13 @@
     <div class="vacation-form-container">
       <h2>휴가 신청</h2>
       <form @submit.prevent="submitVacation">
-        <!-- <label for="date">휴가 날짜</label> -->
-        <!-- <input type="date" id="date" v-model="vacationDate" required />  단일 날자 선택 -->
         <label for="date-picker">휴가 날짜</label>
         <input id="date-picker" type="text" placeholder="날짜를 선택하세요" required />
 
-        <!-- 드롭다운 추가 -> 휴가 종류 선택 -->
         <label for="leave-type">휴가 종류</label>
-        <select id="leave-type" v-model="selectedLeaveType" required>
+        <select id="leave-type" v-model="selectedvacationType" required>
           <option disabled value="">휴가 종류 선택</option>
-          <option v-for="type in leaveTypes" :key="type" :value="type">{{ type }}</option>
+          <option v-for="type in vacationType" :key="type" :value="type">{{ type }}</option>
         </select>
   
         <label for="reason">휴가 사유</label>
@@ -28,23 +25,44 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
+import Cookies from "js-cookie";
+
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js"
 
 const router = useRouter();
-
-// const vacationDate = ref("");
 const vacationDate = ref([]); // 여러 날짜 선택 가능
 const reason = ref("");
+const selectedvacationType = ref("");
+const vacationType = ref(["연차", "하계휴가", "대체 휴가", "포상 휴가"]);
 
-// 휴가 신청 핸들러 -> 나중에 여기 API 추가
-const submitVacation = () => {
-  console.log("휴가 신청 날짜:", vacationDate.value);
-  console.log("휴가 종류:", selectedLeaveType.value);
-  console.log("휴가 사유:", reason.value);
-  alert("휴가 신청이 완료되었습니다!"); // 테스트용
-  router.push("/home"); 
+// 휴가 신청 핸들러 
+const submitVacation = async () => {
+  const vacationData = {
+    vacationDates: vacationDate.value,
+    vacationType: selectedvacationType.value,
+    reason: reason.value,
+  };
+
+  try {
+    // 서버로 API 요청 (JWT 토큰을 헤더에 포함)
+    // const response = await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
+    await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`, 
+      },
+      withCredentials: true,
+    });
+
+    // console.log("휴가 신청 결과:", response.data);
+    alert("휴가 신청이 완료되었습니다!");
+    router.push("/home"); 
+  } catch (error) {
+    // console.error("휴가 신청 오류:", error.response ? error.response.data : error.message);
+    alert("휴가 신청에 실패했습니다. 다시 시도해주세요."); 
+  }
 };
 
 const cancel = () => {
@@ -52,9 +70,6 @@ const cancel = () => {
     reason.value = "";
     router.push("/home");
 };
-
-const selectedLeaveType = ref("");
-const leaveTypes = ref(["연차", "하계휴가", "대체 휴가", "포상 휴가"]);
 
 
 onMounted(() => {

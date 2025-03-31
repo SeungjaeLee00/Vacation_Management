@@ -8,7 +8,7 @@
       <ul>
         <li><button @click="goToVacationForm">휴가 신청</button></li>
         <li><button @click="goToMyPage">마이페이지</button></li>
-        <li><button @click="handleAuth">{{ isLoggedIn ? "로그아웃" : "로그인" }}</button></li>
+        <li><button @click="handleAuth">{{ isLoggedIn  ? "로그아웃" : "로그인" }}</button></li>
       </ul>
       <button class="menu-toggle" @click="toggleNav">  <!-- 햄버거 헤더 -->
         <span class="bar"></span>
@@ -23,24 +23,24 @@
 <script setup>
 import { ref, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
+import useAuth from './useAuth';
 
 const logoLong = require("@/assets/ta9_logo_long.png");
 const logoShort = require("@/assets/ta9_logo.png");
 
 const router = useRouter();
-const isLoggedIn = ref(false); // 로그인 상태 (추후 실제 인증 로직 적용)
+const { isLoggedIn, checkLoginStatus, logout } = useAuth();
 const isNavOpen = ref(false);  // 메뉴 토글 상태
 const headerLogo = ref(logoLong);
 const logoClass = ref("header-logo-long")
 
-  // 화면 크기 감지하여 로고 변경
-const updateLogo = () => {
-  if (window.innerWidth <= 768) {
-    headerLogo.value = logoShort;
-    logoClass.value = "header-logo-short"; 
+// 로그인/로그아웃 처리
+const handleAuth = () => {
+  if (isLoggedIn.value) {
+    logout(); 
+    router.push("/login"); 
   } else {
-    headerLogo.value = logoLong;
-    logoClass.value = "header-logo-long"; 
+    router.push("/login"); 
   }
 };
 
@@ -56,29 +56,30 @@ const goToMyPage = () => {
   router.push("/mypage");
 };
 
-const handleAuth = () => {
-  if (isLoggedIn.value) {
-    // 로그아웃 로직 (추후 구현)
-    isLoggedIn.value = false;
+
+const toggleNav = () => {
+  isNavOpen.value = !isNavOpen.value; 
+};
+
+// 화면 크기 감지하여 로고 변경
+const updateLogo = () => {
+  if (window.innerWidth <= 768) {
+    headerLogo.value = logoShort;
+    logoClass.value = "header-logo-short"; 
   } else {
-    router.push("/login");
+    headerLogo.value = logoLong;
+    logoClass.value = "header-logo-long"; 
   }
 };
 
-const toggleNav = () => {
-  isNavOpen.value = !isNavOpen.value; // 메뉴 열기/닫기
-};
-
 onMounted(() => {
-  router.afterEach(() => {
-    isNavOpen.value = false; // 메뉴 닫기
-  });
-});
-
-// 페이지 로드 시 및 창 크기 변경 시 로고 업데이트
-watchEffect(() => {
+  checkLoginStatus();
   updateLogo();
   window.addEventListener("resize", updateLogo);
+});
+
+watchEffect(() => {
+  checkLoginStatus(); 
 });
 </script>
 

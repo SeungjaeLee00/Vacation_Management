@@ -75,8 +75,6 @@ const sendVerificationCode = async () => {
   try {
     // 이메일 인증 요청을 서버로 보내는 API 호출
     const response = await axios.post(`http://localhost:8088/api/users/send-verification-code?email=${fullEmail.value}`);
-
-    // 서버 응답이 성공이면 인증번호 전송 처리
     if (response.data === "인증 코드가 발송되었습니다.") {
       isCodeSent.value = true;
       alert(`인증번호가 ${fullEmail.value} 로 전송되었습니다.`);
@@ -95,7 +93,6 @@ const verifyCode = async () => {
     alert("인증번호를 입력해주세요.");
     return;
   }
-
   try {
     const response = await axios.post("http://localhost:8088/api/users/verify-code", null, {
       params: {
@@ -103,7 +100,6 @@ const verifyCode = async () => {
         code: verificationCode.value,
       },
     });
-
     if (response.data.success) {
       isVerified.value = true;
       alert("이메일 인증이 완료되었습니다.");
@@ -126,8 +122,6 @@ const submitForm = async () => {
       alert("비밀번호가 일치하지 않습니다.");
       return;
     }
-
-    // 백엔드로 회원가입 요청 보내기
     try {
       const response = await axios.post("http://localhost:8088/api/users/register", {
         employeeId: employeeId.value,
@@ -137,10 +131,8 @@ const submitForm = async () => {
         confirmPassword: confirmPassword.value,
         emailVerified: true  // 이메일 인증 완료 여부
       });
+      alert(response.data); 
 
-      alert(response.data);  // 백엔드에서 받은 응답
-
-      // 회원가입 성공 후 메인 페이지로 이동
       router.push("/home");
 
     } catch (error) {
@@ -149,7 +141,6 @@ const submitForm = async () => {
     }
   };
 </script>
-
 
 
 <style scoped>

@@ -6,12 +6,16 @@
 
       <!-- 필터 영역 -->
       <div class="vacation-list-filter-container">
-        <input v-model="searchText" type="text" placeholder="검색어 입력..." class="vacation-list-filter-input" />
         <select v-model="selectedStatus" class="vacation-list-filter-select">
           <option value="">전체 상태</option>
-          <option value="approved">승인됨</option>
-          <option value="pending">대기 중</option>
-          <option value="rejected">거절됨</option>
+          <option value="Approved">승인됨</option>
+          <option value="Pending">대기 중</option>
+          <option value="Rejected">거절됨</option>
+        </select>
+
+        <select v-model="sortOrder" class="vacation-list-filter-select">
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된 순</option>
         </select>
         <button @click="resetFilters" class="vacation-list-filter-reset-btn">초기화</button>
       </div>
@@ -31,11 +35,11 @@
         <tbody>
           <tr v-for="leave in paginatedLeaves" :key="leave.id">
             <td>{{ leave.requestDate }}</td>
-            <td>{{ leave.type }}</td>
-            <td>{{ leave.startDate }}</td>
-            <td>{{ leave.endDate }}</td>
-            <!-- <td>{{ leave.status }}</td> -->
-            <td :class="statusClass(leave.status)">{{ leave.status }}</td>
+            <td>{{ leave.vacationType }}</td>
+            <td>{{ leave.vacationDates.split(',')[0] }}</td>
+            <td>{{ leave.vacationDates.split(',')[1] }}</td>
+            <!-- <td :class="statusClass(leave.status)">{{ leave.status }}</td> -->
+            <td :class="statusClass(leave.status)"> {{ statusTranslation(leave.status) }} </td>
             <td class="vacation-list-text-center">
               <button @click="viewDetails(leave)" class="vacation-list-detail-btn">보기</button>
             </td>
@@ -58,33 +62,64 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+import Cookies from "js-cookie";
 import VuePagination from "@/components/VuePagination.vue";
 import VacationDetailModal from "@/components/modals/VacationDetailModal.vue";
 
-// reactive 상태 선언
-const searchText = ref('');
 const selectedStatus = ref('');
+const sortOrder = ref('newest'); 
 const selectedLeave = ref(null);
 const currentPage = ref(1);
-const itemsPerPage = 5;  // 한 페이지에 보여줄 항목 수
+const itemsPerPage = 5; 
 
-// 더미 데이터
-const leaves = ref([
-  { id: 1, requestDate: "2025-03-20", type: "연차", startDate: "2025-04-01", endDate: "2025-04-02", status: "승인됨", reason: "가족 여행" },
-  { id: 2, requestDate: "2025-03-21", type: "하계휴가", startDate: "2025-06-10", endDate: "2025-06-12", status: "대기 중", reason: "개인 사유" },
-  { id: 3, requestDate: "2025-03-22", type: "대체 휴가", startDate: "2025-05-05", endDate: "2025-05-06", status: "거절됨", reason: "건강 문제" },
-  { id: 4, requestDate: "2025-03-23", type: "포상 휴가", startDate: "2025-07-01", endDate: "2025-07-02", status: "승인됨", reason: "우수 성과 보상" },
-  { id: 5, requestDate: "2025-03-24", type: "연차", startDate: "2025-08-01", endDate: "2025-08-02", status: "대기 중", reason: "친구 결혼식 참석" },
-  { id: 6, requestDate: "2025-03-25", type: "하계휴가", startDate: "2025-09-10", endDate: "2025-09-12", status: "승인됨", reason: "여름 휴가" },
-]);
+// 휴가 신청 리스트
+const leaves = ref([]);
+
+const fetchVacationRequests = async () => {
+  try {
+    const response = await axios.get('http://localhost:8088/api/vacations/my-vacations', { 
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`, 
+      },
+      withCredentials: true,
+    });
+    // console.log(response.data)
+    leaves.value = response.data.content;  
+  } catch (error) {
+    // console.error("휴가 신청 내역을 가져오는 데 실패했습니다.", error);
+    alert("휴가 신청 내역을 가져오는 데 실패했습니다.")
+  }
+};
+
+// 컴포넌트가 마운트 될 때 데이터 로드
+onMounted(() => {
+  fetchVacationRequests();
+});
 
 // 필터링된 휴가 신청 내역 반환
 const filteredLeaves = computed(() => {
-  return leaves.value.filter(leave => 
-    (searchText.value === "" || leave.type.includes(searchText.value)) &&  // 검색어 필터
-    (selectedStatus.value === "" || leave.status === selectedStatus.value)  // 상태 필터
-  );
+  // return leaves.value.filter(leave => {
+    let filteredData = leaves.value.filter(leave => {
+    const matchesStatus = selectedStatus.value === "" || leave.status === selectedStatus.value;
+    
+    return matchesStatus;
+  });
+
+   // 날짜별 정렬 (최신순/오래된 순)
+   filteredData = filteredData.sort((a, b) => {
+    const dateA = new Date(a.requestDate);
+    const dateB = new Date(b.requestDate);
+    
+    if (sortOrder.value === "newest") {
+      return dateB - dateA; // 최신순
+    } else {
+      return dateA - dateB; // 오래된 순
+    }
+  });
+
+  return filteredData;
 });
 
 // 전체 페이지 수 계산
@@ -105,19 +140,27 @@ const viewDetails = (leave) => {
 
 // 상태에 맞는 CSS 클래스 반환
 const statusClass = (status) => {
-  if (status === "승인됨") return "status-approved";
-  if (status === "대기 중") return "status-pending";
-  if (status === "거절됨") return "status-rejected";
+  if (status === "Approved") return "status-approved";
+  if (status === "Pending") return "status-pending";
+  if (status === "Rejected") return "status-rejected";
   return "";
+};
+
+// 상태를 한국어로 변환
+const statusTranslation = (status) => {
+  if (status === "Pending") return "대기 중";
+  if (status === "Approved") return "승인됨";
+  if (status === "Rejected") return "거절됨";
+  return status; // 기본적으로 그대로 반환
 };
 
 // 필터 초기화
 const resetFilters = () => {
-  searchText.value = "";  
   selectedStatus.value = "";  
+  sortOrder.value = "newest"; 
+  fetchVacationRequests(); // 필터 초기화 후 다시 API 호출
 };
 </script>
-
 
 
 <style scoped>
@@ -125,7 +168,7 @@ const resetFilters = () => {
       font-size: 24px;
       font-weight: bold;
       color: #333;
-      margin-top:50px;
+      margin-top: 50px;
       text-align: center;
   }
 
@@ -137,8 +180,9 @@ const resetFilters = () => {
     margin-bottom: 16px;
   }
 
-  .vacation-list-filter-input, .vacation-list-filter-select {
+  .vacation-list-filter-select {
     border: 1px solid #d1d5db;
+    width: 200px;
     padding: 8px;
     border-radius: 8px;
     outline: none;
@@ -163,6 +207,21 @@ const resetFilters = () => {
   .vacation-list-filter-reset-btn:hover {
     background-color: #4b5563; 
   }
+
+  .vacation-list-filter-btn {
+    background-color: #93bf85; 
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+  }
+
+  .vacation-list-filter-btn:hover {
+    background-color: #6eaa5e; 
+  }
+
 
   .vacation-list-table {
     width: 95%;
