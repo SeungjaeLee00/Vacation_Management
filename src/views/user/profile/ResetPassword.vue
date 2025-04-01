@@ -19,7 +19,7 @@
       </div>
 
       <div class="button-group">
-        <button class="btn save">저장</button>
+        <button class="btn save" @click="submitChangePassword">저장</button>
         <button class="btn cancel" @click="goToMyPage">취소</button>
       </div>
     </div>
@@ -29,6 +29,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const currentPassword = ref(""); 
 const newPassword = ref(""); 
@@ -38,7 +40,36 @@ const router = useRouter();
 const goToMyPage = () => {
   router.push("/mypage");
 };
+
+const submitChangePassword = async () => {
+  if (newPassword.value !== confirmPassword.value) {
+    alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+    return;
+  }
+
+  const passwordData = {
+    currentPassword: currentPassword.value,
+    newPassword: newPassword.value,
+    confirmPassword: confirmPassword.value,
+  };
+
+  try {
+    const response = await axios.put("http://localhost:8088/api/user/change-password", passwordData, {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`,
+      },
+      withCredentials: true,
+    });
+
+    alert(response.data);
+    router.push("/mypage");
+  } catch (error) {
+    console.error("비밀번호 변경 실패:", error.response ? error.response.data : error.message);
+    alert("비밀번호 변경에 실패했습니다. 다시 시도해주세요.");
+  }
+};
 </script>
+
 
 <style scoped>
 .reset-password-container {
