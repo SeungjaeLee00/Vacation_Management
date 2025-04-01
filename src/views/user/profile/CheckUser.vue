@@ -19,18 +19,41 @@
   <script setup>
   import { ref } from "vue";
   import { useRouter, useRoute } from "vue-router";
+  import axios from "axios";
+  import Cookies from "js-cookie";
   
   const password = ref(""); 
   const router = useRouter();
   const route = useRoute();
   
-  // URL에서 `nextRoute` 가져오기
   const nextRoute = route.query.nextRoute || "/mypage"; 
   
-  const verifyPassword = () => {
-    // DB 연동 후 비밀번호 검증 추가
-    router.push(nextRoute); // 비밀번호 확인 후 이동
-  };
+// 비밀번호 확인 API
+const verifyPassword = async () => {
+  try {
+    const response = await axios.post(
+      "http://localhost:8088/api/users/check-password", 
+      { password: password.value },
+      { headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`, 
+      },
+        withCredentials: true, 
+      }
+    );
+
+    if (response.status === 200) {
+      // console.log(response.data);
+      router.push(nextRoute); 
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      alert("비밀번호가 일치하지 않습니다.");
+    } else {
+      alert("비밀번호 확인 중 오류가 발생했습니다.");
+    }
+  }
+};
+
   
   const goToMyPage = () => {
     router.push("/mypage");

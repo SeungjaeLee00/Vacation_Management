@@ -1,4 +1,3 @@
-
 <template>
   <div class="vacation-container">
     <div class="vacation-list">
@@ -20,8 +19,12 @@
         <button @click="resetFilters" class="vacation-list-filter-reset-btn">초기화</button>
       </div>
 
+      <div v-if="filteredLeaves.length === 0">
+        <p>신청한 휴가가 없습니다. 첫 휴가를 써보세요 :)</p>
+      </div>
+
       <!-- 휴가 신청 목록 (페이지네이션 적용) -->
-      <table class="vacation-list-table">
+      <table v-else class="vacation-list-table">
         <thead>
           <tr>
             <th>신청 날짜</th>
