@@ -1,6 +1,6 @@
 <template>
   <div class="mypage-container">
-    <h2 class="mypage-title">마이페이지</h2>
+    <h2 class="mypage-title">{{ userName }} 님, 환영합니다.</h2>
     <div class="divider"></div>
 
     <div class="mypage-vacation-balance">
@@ -20,12 +20,34 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-// 잔여 휴가 수 
-// 예제: 10일 남음 -> 나중에 다시 구현해야 함..
+// 사용자 이름을 저장하는 변수
+const userName = ref(""); 
+
+// 잔여 휴가 수 (예제: 10일 남음 -> 나중에 다시 구현해야 함..)
 const remainingLeaves = ref(10);
 const router = useRouter();
+
+// 사용자 정보 가져오기 함수
+const fetchUserInfo = async () => {
+  try {
+    const response = await axios.get("http://localhost:8088/api/user/me", {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`, 
+      },
+      withCredentials: true,
+    });
+   
+    userName.value = response.data.name;
+  } catch (error) {
+    console.error("사용자 정보 가져오기 실패:", error.response ? error.response.data : error.message);
+  }
+};
+
+onMounted(fetchUserInfo);
 
 const goToMainPage = () => {
     router.push("/home");

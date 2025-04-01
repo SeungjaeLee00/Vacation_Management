@@ -38,7 +38,7 @@ const reason = ref("");
 const selectedvacationType = ref("");
 const vacationType = ref(["연차", "하계휴가", "대체 휴가", "포상 휴가"]);
 
-// 휴가 신청 핸들러 
+// 휴가 신청 API
 const submitVacation = async () => {
   const vacationData = {
     vacationDates: vacationDate.value,
@@ -47,7 +47,6 @@ const submitVacation = async () => {
   };
 
   try {
-    // 서버로 API 요청 (JWT 토큰을 헤더에 포함)
     // const response = await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
     await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
       headers: {
@@ -55,7 +54,6 @@ const submitVacation = async () => {
       },
       withCredentials: true,
     });
-
     // console.log("휴가 신청 결과:", response.data);
     alert("휴가 신청이 완료되었습니다!");
     router.push("/home"); 

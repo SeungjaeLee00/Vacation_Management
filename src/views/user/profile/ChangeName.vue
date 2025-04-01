@@ -10,7 +10,7 @@
       </div>
 
       <div class="button-group">
-        <button class="btn save">저장</button>
+        <button class="btn save" @click="updateName">저장</button>
         <button class="btn cancel" @click="goToMyPage">취소</button>
       </div>
     </div>
@@ -20,6 +20,8 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const newName = ref(""); 
 const router = useRouter();
@@ -28,9 +30,32 @@ const goToMyPage = () => {
   router.push("/mypage");
 };
 
-// 저장 로직 (구현 예정)
+// 이름 변경 API 호출
+const updateName = async () => {
+  const updateData = {
+    newName: newName.value,
+  };
 
+  try {
+    await axios.put(
+      "http://localhost:8088/api/user/update-name", 
+      updateData, 
+      {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("Token")}`, // 쿠키에서 Token을 가져와 Authorization에 추가
+        },
+        withCredentials: true, // 쿠키를 포함하여 요청
+      }
+    );
+    alert("이름 변경이 완료되었습니다!");
+    goToMyPage(); // 이름 변경 후 마이페이지로 이동
+  } catch (error) {
+    alert("이름 변경에 실패했습니다. 다시 시도해주세요.");
+    console.error("이름 변경 오류:", error.response ? error.response.data : error.message); // 오류 메시지 출력
+  }
+};
 </script>
+
 
 <style scoped>
 .change-name-container {

@@ -32,7 +32,7 @@
 const verifyPassword = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:8088/api/users/check-password", 
+      "http://localhost:8088/api/user/check-password", 
       { password: password.value },
       { headers: {
         Authorization: `Bearer ${Cookies.get("Token")}`, 
