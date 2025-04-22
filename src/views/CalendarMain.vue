@@ -27,37 +27,122 @@
   const calendarRef = ref(null);
   const selectedDate = ref("");
   const selectedEvents = ref([]);
+  
   const showModal = ref(false);
 
   const events = ref([
+    // 기존 이벤트는 따로 저장해서 공휴일과 결합할 예정  
     // DB 연동X, 더미 데이터터
-    { title: "이승재 휴가", start: "2025-03-25" },
-    { title: "이승재 휴가", start: "2025-03-25" },
-    { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
+    // { title: "이승재 휴가", start: "2025-03-25" },
   ]);
+
+  const holidayDates = ref([]); // 'YYYY-MM-DD' 형식
 
   const calendarOptions = ref({
     plugins: [dayGridPlugin, interactionPlugin],
     initialView: "dayGridMonth",
     locale: "ko",
     locales: [koLocale],
-    events: events.value,
+
+    // 여기에 공휴일 넣을거임
+    // events: events.value,  
+    events: (fetchInfo, successCallback, failureCallback) => {
+      const yearStart = fetchInfo.start.getFullYear();
+      const monthStart = fetchInfo.start.getMonth() + 1; 
+      const yearEnd = fetchInfo.end.getFullYear();
+      const monthEnd = fetchInfo.end.getMonth() + 1;
+
+      // console.log(`공휴일 요청: ${yearStart}년 ${monthStart}월 ~ ${yearEnd}년 ${monthEnd}월`);
+
+      const currentMonthDate = new Date(fetchInfo.start);
+      /*
+        보고 있는 달이 3월인데, log로 찍으면 1월이라는 오류 발생
+        -> fetchInfo.start는 캘린더에 보이는 "이전 달의 첫 날짜"일 수 있음
+        -> 7일 더해서 "현재 달"의 날짜로 이동
+      */ 
+      currentMonthDate.setDate(currentMonthDate.getDate() + 7); 
+
+      const currentMonth = currentMonthDate.getMonth();
+      const currentYear = currentMonthDate.getFullYear();
+
+      // console.log(`현재 보고 있는 달: ${currentYear}년 ${currentMonth + 1}월`);
+
+      // 시작 날짜와 끝 날짜를 파라미터로 보내기
+      fetch(`http://localhost:8088/api/holidays/get-holiday?startYear=${yearStart}&startMonth=${monthStart}&endYear=${yearEnd}&endMonth=${monthEnd}`)
+        .then((res) => res.json())
+        .then((data) => {
+          // console.log("공휴일", data);
+
+          holidayDates.value = data.map((holiday) => holiday.holidayDate); // 공휴일 날짜 저장
+
+          const holidayEvents = data.map((holiday) => {
+          const holidayDate = new Date(holiday.holidayDate);
+          const isCurrentMonth =
+            holidayDate.getMonth() === currentMonth &&
+            holidayDate.getFullYear() === currentYear;
+
+            return {
+              title: holiday.name,
+              start: holiday.holidayDate,
+              allDay: true,
+              backgroundColor: isCurrentMonth ? "#ff6666" : "#ffe5e5",
+              textColor: isCurrentMonth ? "white" : "#944",
+              borderColor: isCurrentMonth ? "#ff4444" : "#f5aaaa",
+        };
+      });
+
+          // 기존 휴가 이벤트를 포함한 새로운 이벤트 배열 생성
+          const combinedEvents = [...events.value, ...holidayEvents];
+          successCallback(combinedEvents);
+        })
+        .catch((error) => {
+          console.error("공휴일 로딩 실패:", error);
+          failureCallback(error);
+        });
+    },
+
+    // 숫자 빨간날 표시: 일요일, 공휴일일
+    dayCellClassNames: (arg) => {
+      const year = arg.date.getFullYear();
+      const month = String(arg.date.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(arg.date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${dayNum}`; 
+
+      const day = arg.date.getDay();
+      const classes = [];
+
+      if (day === 0) {
+        classes.push("sunday");
+      }
+
+      if (holidayDates.value.includes(dateStr)) {
+        classes.push("holiday");
+      }
+
+      return classes;
+    },
+
     height: 650, // FullCalendar 전체 높이 
     contentHeight: 450, // 내부 콘텐츠 
     dayMaxEvents: 2,  // 같은 날에 2개까지만 표시하고, 초과 시 "+더보기" 버튼 자동 생성(FullCalendar에서 기본적으로 제공하는 기능)
     dateClick: (info) => openEventModal(info.dateStr),
-    headerToolbar: { // 달력의 상단 툴바 설정
+
+    // 달력의 상단 툴바 설정
+    headerToolbar: { 
       left: 'prev,next today',
       center: 'title',         
       right: 'dayGridMonth,dayGridWeek' 
-  },
-   // 반응형을 위한 추가 옵션
-   windowResize: function() {
-    adjustCalendarSize();
-  },
+    },
+
+    // 반응형을 위한 추가 옵션
+    windowResize: function() {
+      adjustCalendarSize();
+    },
   });
 
-  // 반응형 설정을 위한 계산된 값
+  // 반응형 설정
   const adjustCalendarSize = () => {
     const windowWidth = window.innerWidth;
 
@@ -131,6 +216,11 @@
     padding: 10px;
     position: relative;
     z-index: 1;
+  }
+
+  :deep(.sunday .fc-daygrid-day-number),
+  :deep(.holiday .fc-daygrid-day-number) {
+  color: red !important;
   }
 
   /* FullCalendar 크기 줄이기 */

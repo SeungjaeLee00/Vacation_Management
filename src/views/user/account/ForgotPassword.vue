@@ -32,29 +32,6 @@ const sendTemporaryPassword = async () => {
   console.log("입력된 이메일:", email.value);
   console.log("서버 없이 콘솔에서 확인 중...");
 
-  // TODO: 서버 구현 후 아래 API 호출 활성화
-  /*
-  try {
-    const response = await fetch("/api/send-temp-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.value }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      alert("임시 비밀번호가 이메일로 전송되었습니다.");
-      router.push("/login"); // 로그인 페이지로 이동
-    } else {
-      alert(result.message || "이메일 전송 실패. 다시 시도해주세요.");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("서버 오류 발생. 다시 시도해주세요.");
-  }
-  */
-
   // 서버가 없으므로 가정하여 성공 메시지 출력 후 이동
   setTimeout(() => {
     alert("임시 비밀번호가 이메일로 전송되었습니다.");
