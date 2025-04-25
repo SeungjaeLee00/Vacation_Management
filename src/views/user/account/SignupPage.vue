@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="auth-container">
     <div class="auth-box">
       <h2>회원가입</h2>
@@ -250,4 +250,4 @@ button:hover {
 .link-to a:hover {
   text-decoration: underline;
 }
-</style>
+</style> -->

@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import CalendarMain from "../views/CalendarMain.vue";
 import MyPage from "../views/user/profile/MyPage.vue";
 import VacationList from "../views/vacation/VacationList.vue";
-import SignupPage from "../views/user/account/SignupPage.vue";
+// import SignupPage from "../views/user/account/SignupPage.vue";
 import LoginPage from "../views/user/account/LoginPage.vue";
 import VacationForm from "../views/vacation/VacationForm.vue";
 import ForgotPassword from "@/views/user/account/ForgotPassword.vue";
@@ -13,7 +13,7 @@ import CheckUser from "@/views/user/profile/CheckUser.vue";
 const routes = [
   { path: "/", component: LoginPage },
   { path: "/login", component: LoginPage },
-  { path: "/signup", component: SignupPage },
+  // { path: "/signup", component: SignupPage },
   { path: "/home", component: CalendarMain },
   { path: "/mypage", component: MyPage },
 
@@ -43,7 +43,8 @@ router.beforeEach((to, from, next) => {
   // }
 
   // 로그인 관련 조건 검사
-  if (to.path === '/login' || to.path === '/signup' || to.path === '/find-password') {
+  // if (to.path === '/login' || to.path === '/signup' || to.path === '/find-password') {
+    if (to.path === '/login' || to.path === '/find-password') {
     return next();  // 로그인, 회원가입, 비밀번호 찾기 페이지로 이동할 수 있게 허용
   }
 

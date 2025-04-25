@@ -8,7 +8,7 @@
       <button type="submit">로그인</button>
     </form>
     <div class="link-to">
-      <p>계정이 없으신가요? <router-link to="/signup">회원가입</router-link></p>
+      <!-- <p>계정이 없으신가요? <router-link to="/signup">회원가입</router-link></p> -->
       <p>비밀번호를 잊으셨나요? <router-link to="/find-password">비밀번호 찾기</router-link></p>
     </div>
   </div>
