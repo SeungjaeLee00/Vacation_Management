@@ -38,7 +38,7 @@
         <tbody>
           <tr v-for="leave in paginatedLeaves" :key="leave.id">
             <td>{{ leave.requestDate }}</td>
-            
+
             <!-- <td>{{ leave.vacationType }}</td> -->
             <td>
               <ul>
@@ -97,8 +97,8 @@ const fetchVacationRequests = async () => {
       },
       withCredentials: true,
     });
-    console.log(response.data)
-    leaves.value = response.data.content;  
+    // console.log(response.data)
+    leaves.value = response.data;  
   } catch (error) {
     // console.error("휴가 신청 내역을 가져오는 데 실패했습니다.", error);
     alert("휴가 신청 내역을 가져오는 데 실패했습니다.")
@@ -136,7 +136,7 @@ const filteredLeaves = computed(() => {
 
 // 전체 페이지 수 계산
 const totalPages = computed(() => {
-  return Math.ceil(filteredLeaves.value.length / itemsPerPage);
+  return Math.ceil(filteredLeaves.value.length / itemsPerPage) || 1;
 });
 
 // 페이지네이션에 맞추어 보여줄 휴가 신청 내역
@@ -144,6 +144,7 @@ const paginatedLeaves = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;  // 시작 인덱스
   return filteredLeaves.value.slice(start, start + itemsPerPage);  // 해당 페이지에 맞는 항목만 반환
 });
+
 
 // 휴가 신청 상세보기
 const viewDetails = (leave) => {
@@ -170,6 +171,7 @@ const statusTranslation = (status) => {
 const resetFilters = () => {
   selectedStatus.value = "";  
   sortOrder.value = "newest"; 
+  currentPage.value = 1;  // 필터 초기화할 때 페이지도 1로 돌ㅇ오옴
   fetchVacationRequests(); // 필터 초기화 후 다시 API 호출
 };
 </script>
