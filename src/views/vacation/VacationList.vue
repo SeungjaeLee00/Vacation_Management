@@ -38,9 +38,18 @@
         <tbody>
           <tr v-for="leave in paginatedLeaves" :key="leave.id">
             <td>{{ leave.requestDate }}</td>
-            <td>{{ leave.vacationType }}</td>
-            <td>{{ leave.vacationDates.split(',')[0] }}</td>
-            <td>{{ leave.vacationDates.split(',')[1] }}</td>
+            
+            <!-- <td>{{ leave.vacationType }}</td> -->
+            <td>
+              <ul>
+                <li v-for="used in leave.usedVacations" :key="used.vacationTypeName">
+                  {{ used.vacationTypeName }} {{ used.usedDays }}일
+                </li>
+              </ul>
+            </td>
+
+            <td>{{ leave.startAt }}</td>
+            <td>{{ leave.endAt }}</td>
             <!-- <td :class="statusClass(leave.status)">{{ leave.status }}</td> -->
             <td :class="statusClass(leave.status)"> {{ statusTranslation(leave.status) }} </td>
             <td class="vacation-list-text-center">
@@ -88,7 +97,7 @@ const fetchVacationRequests = async () => {
       },
       withCredentials: true,
     });
-    // console.log(response.data)
+    console.log(response.data)
     leaves.value = response.data.content;  
   } catch (error) {
     // console.error("휴가 신청 내역을 가져오는 데 실패했습니다.", error);
