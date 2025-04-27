@@ -17,6 +17,7 @@
 </template>
 
 <script setup>
+import axios from "axios";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -29,14 +30,16 @@ const sendTemporaryPassword = async () => {
     return;
   }
 
-  console.log("입력된 이메일:", email.value);
-  console.log("서버 없이 콘솔에서 확인 중...");
-
-  // 서버가 없으므로 가정하여 성공 메시지 출력 후 이동
-  setTimeout(() => {
+  try{
+    await axios.post("http://localhost:8088/api/user/forgot-password", {
+      email: email.value,
+    });
     alert("임시 비밀번호가 이메일로 전송되었습니다.");
     router.push("/login");
-  }, 1000);
+  } catch (error) {
+    console.error(error);
+    alert("이메일 전송에 실패했습니다. 이메일을 다시 확인해주세요.")
+  }
 };
 
 const goToLoginPage = () => {

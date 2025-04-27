@@ -40,28 +40,32 @@ const vacationType = ref(["연차", "하계휴가", "대체 휴가", "포상 휴
 
 // 휴가 신청 API
 const submitVacation = async () => {
+  if (vacationDate.value.length === 0) {
+    alert("휴가 날짜를 선택해주세요.");
+    return;
+  }
+
   const vacationData = {
-    vacationDates: vacationDate.value,
+    startAt: vacationDate.value[0],  // 시작일
+    endAt: vacationDate.value[vacationDate.value.length - 1],  // 종료일
     vacationType: selectedvacationType.value,
     reason: reason.value,
   };
 
   try {
-    // const response = await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
     await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
       headers: {
         Authorization: `Bearer ${Cookies.get("Token")}`, 
       },
       withCredentials: true,
     });
-    // console.log("휴가 신청 결과:", response.data);
     alert("휴가 신청이 완료되었습니다!");
     router.push("/home"); 
   } catch (error) {
-    // console.error("휴가 신청 오류:", error.response ? error.response.data : error.message);
     alert("휴가 신청에 실패했습니다. 다시 시도해주세요."); 
   }
 };
+
 
 const cancel = () => {
     vacationDate.value = [];
