@@ -13,12 +13,22 @@
         </label>
         <input
           type="number"
-          min="0"
+          min="0.25"
+          step="0.25"
           v-model.number="usedDaysByType[type]"
           :disabled="!selectedVacationTypes.includes(type)"
           placeholder="사용 일수"
           required
         />
+
+        <!-- 1일 미만이면 시간 선택 UI 보이게 -->
+        <div v-if="usedDaysByType[type] > 0 && usedDaysByType[type] < 1" class="time-inputs">
+          <label>시작 시간</label>
+          <input type="time" v-model="startTimes[type]" />
+          <label>종료 시간</label>
+          <input type="time" v-model="endTimes[type]" />
+        </div>
+
       </div>
 
       <label for="reason">휴가 사유</label>
@@ -33,10 +43,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
+import dayjs from 'dayjs';
 
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
@@ -44,6 +55,8 @@ import { Korean } from "flatpickr/dist/l10n/ko.js";
 
 const router = useRouter();
 const vacationDate = ref([]);
+const startTimes = reactive({});
+const endTimes = reactive({});
 const reason = ref("");
 const vacationTypes = ref(["연차", "하계휴가", "대체휴가", "포상휴가"]);
 const selectedVacationTypes = ref([]);
@@ -67,18 +80,31 @@ const submitVacation = async () => {
   try {
     const usedVacations = selectedVacationTypes.value.map((type) => {
       const usedDays = usedDaysByType.value[type];
-      if (!usedDays || usedDays <= 0) {
-        throw new Error(`${type} 휴가의 사용 일수를 1일 이상 입력해주세요.`);
+      if (!usedDays || usedDays < 0.25) {
+        throw new Error(`${type} 휴가의 사용 일수를 0.25일 이상 입력해주세요.`);
       }
-      return { vacationTypeName: type, usedDays };
+      return {
+        vacationTypeName: type,
+        usedDays,
+        startTime: startTimes[type] || null,
+        endTime: endTimes[type] || null,
+      };
     });
 
+    /* 
+    프론트에서 선택된 날짜가 실제로 하루 땡겨져서 저장되는 문제 발생
+      -> 날짜 +1 하는 거로 하드코딩함.. 근데 이건 임시임. 다시 방법 생각해야 함. 타임존 문젠가ㅜㅜ
+    */
+    const startAt = dayjs(vacationDate.value[0]).add(1, 'day').format('YYYY-MM-DD');
+    const endAt = dayjs(vacationDate.value[vacationDate.value.length - 1]).add(1, 'day').format('YYYY-MM-DD');
+
     const vacationData = {
-      startAt: vacationDate.value[0],
-      endAt: vacationDate.value[vacationDate.value.length - 1],
+      startAt,
+      endAt,
       usedVacations,
       reason: reason.value,
     };
+    
 
     await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
       headers: {
@@ -117,12 +143,13 @@ onMounted(() => {
   });
 });
 
+// watch로 selectedVacationTypes 감시하기~
 watch(selectedVacationTypes, (newVal, oldVal) => {
-  // 새로 추가된 휴가 타입에 대해서만 usedDaysByType 값을 1로 세팅
+  // 새로 추가된 휴가 타입에 대해서만 usedDaysByType 값을 0.25로 세팅
   const addedTypes = newVal.filter((type) => !oldVal.includes(type));
   addedTypes.forEach((type) => {
     if (usedDaysByType.value[type] === 0) {
-      usedDaysByType.value[type] = 1;
+      usedDaysByType.value[type] = 0.25;
     }
   });
 
@@ -139,10 +166,6 @@ watch(selectedVacationTypes, (newVal, oldVal) => {
   width: 100%;
   max-width: 400px;
   margin: 50px auto;
-
-  /* background: #fff; */
-  /* border-radius: 8px; */
-  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
 }
 
 h2 {
@@ -216,9 +239,10 @@ button {
 }
 
 .vacation-type-row {
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  gap: 12px;
 }
 
 .vacation-type-row label {
@@ -243,6 +267,7 @@ button {
   transition: border-color 0.2s ease;
 }
 
+
 .vacation-type-row input[type="number"]:focus {
   border-color: #409eff; 
   outline: none;
@@ -254,4 +279,26 @@ button {
   cursor: not-allowed;
 }
 
+.time-inputs {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-left: 24px;
+  margin-top: 6px;
+}
+
+.time-inputs label {
+  font-size: 13px;
+  color: #555;
+}
+
+.time-inputs input[type="time"] {
+  padding: 3px 6px;
+  font-size: 14px;
+  width: 120px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
 </style>

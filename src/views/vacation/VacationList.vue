@@ -42,7 +42,7 @@
             <!-- <td>{{ leave.vacationType }}</td> -->
             <td>
               <ul>
-                <li v-for="used in leave.usedVacations" :key="used.vacationTypeName">
+                <li class="vf-vacationType" v-for="used in leave.usedVacations" :key="used.vacationTypeName">
                   {{ used.vacationTypeName }} {{ used.usedDays }}일
                 </li>
               </ul>
@@ -242,6 +242,12 @@ const resetFilters = () => {
     border-collapse: collapse;
     justify-self: center;
     margin-top: 20px;
+  }
+
+  .vf-vacationType{
+    /* list-style-type: none; */
+    text-align: left;
+
   }
 
   .vacation-list-table th,

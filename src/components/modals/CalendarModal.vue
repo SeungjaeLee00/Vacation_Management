@@ -5,13 +5,16 @@
 
       <ul v-if="filteredEvents.length > 0">
         <li v-for="(event, index) in filteredEvents" :key="index">
-          {{ event.reason }}
+          <strong>휴가 사유:</strong> {{ event.reason }}
           <ul>
-            <li v-for="(used, idx) in event.usedVacations" :key="idx">
-              {{ used.vacationTypeName }}: {{ used.usedDays }}일
+            <li class="cm-modal-content-details" v-for="(used, idx) in event.usedVacations" :key="idx">
+              {{ used.vacationTypeName }}: {{ used.usedDays.toFixed(2) }}일
+              <template v-if="used.startTime && used.endTime">
+                ({{ used.startTime }} ~ {{ used.endTime }})
+              </template>
             </li>
-            ({{ event.startAt }} ~ {{ event.endAt }})
           </ul>
+          <!-- ({{ event.startAt }} ~ {{ event.endAt }}) -->
         </li>
       </ul>
 
@@ -31,7 +34,7 @@ const props = defineProps({
   selectedEvents: Array      
 });
 
-// selectedDate에 해당하는 휴가만 필터링
+// 선택한 날짜에 해당하는 휴가만 필터링
 const filteredEvents = computed(() => {
   if (!props.selectedDate || !props.selectedEvents.length) return [];
 
@@ -50,7 +53,6 @@ const formattedDate = computed(() => {
 });
 </script>
 
-  
   
 <style scoped>
 .cm-modal-overlay {
@@ -82,15 +84,19 @@ const formattedDate = computed(() => {
 .cm-modal-content ul {
   list-style: none;
   padding: 0;
+  text-align: left;
 }
 
-.cm-modal-content li {
-  background: #f4f4f4;
-  padding: 5px;
+.cm-modal-content ul li {
+  font-size: 1rem;
+}
+
+.cm-modal-content-details {
+  list-style: disc inside;
   margin: 5px 0;
   border-radius: 5px;
+  text-align: left;
 }
-
 .cm-modal-close {
   margin-top: 10px;
   padding: 8px 12px;
