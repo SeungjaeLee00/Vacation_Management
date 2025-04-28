@@ -5,200 +5,249 @@
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </div>
 
-    <!-- 모달 컴포넌트 사용 -->
     <CalendarModal  
       v-if="showModal" 
       :selectedDate="selectedDate" 
-      :selectedEvents="selectedEvents" 
+      :selectedEvents="vacationData" 
       @close="closeModal" 
     />
   </div>
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted } from "vue";
-  import FullCalendar from "@fullcalendar/vue3";
-  import dayGridPlugin from "@fullcalendar/daygrid";
-  import interactionPlugin from "@fullcalendar/interaction";
-  import koLocale from "@fullcalendar/core/locales/ko";
-  import CalendarModal from "@/components/modals/CalendarModal.vue"; 
-  // import dayjs from "dayjs";
+import { ref, onMounted, onUnmounted } from "vue";
+import FullCalendar from "@fullcalendar/vue3";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import koLocale from "@fullcalendar/core/locales/ko";
+import Cookies from "js-cookie";
+import CalendarModal from "@/components/modals/CalendarModal.vue";
 
-  const calendarRef = ref(null);
-  const selectedDate = ref("");
-  const selectedEvents = ref([]);
-  
-  const showModal = ref(false);
+const calendarRef = ref(null);
+const selectedDate = ref("");
+const selectedEvents = ref([]);
+const showModal = ref(false);
+const vacationData = ref([]);
+const holidayDates = ref([]);
 
-  const events = ref([
-    // 기존 이벤트는 따로 저장해서 공휴일과 결합할 예정  
-    // DB 연동X, 더미 데이터터
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-    // { title: "이승재 휴가", start: "2025-03-25" },
-  ]);
+const calendarOptions = ref({
+  plugins: [dayGridPlugin, interactionPlugin],
+  initialView: "dayGridMonth",
+  locale: "ko",
+  locales: [koLocale],
 
-  const holidayDates = ref([]); // 'YYYY-MM-DD' 형식
+  events: (fetchInfo, successCallback, failureCallback) => {
+    const yearStart = fetchInfo.start.getFullYear();
+    const monthStart = fetchInfo.start.getMonth() + 1;
+    const yearEnd = fetchInfo.end.getFullYear();
+    const monthEnd = fetchInfo.end.getMonth() + 1;
 
-  const calendarOptions = ref({
-    plugins: [dayGridPlugin, interactionPlugin],
-    initialView: "dayGridMonth",
-    locale: "ko",
-    locales: [koLocale],
-
-    // 여기에 공휴일 넣을거임
-    // events: events.value,  
-    events: (fetchInfo, successCallback, failureCallback) => {
-      const yearStart = fetchInfo.start.getFullYear();
-      const monthStart = fetchInfo.start.getMonth() + 1; 
-      const yearEnd = fetchInfo.end.getFullYear();
-      const monthEnd = fetchInfo.end.getMonth() + 1;
-
-      // console.log(`공휴일 요청: ${yearStart}년 ${monthStart}월 ~ ${yearEnd}년 ${monthEnd}월`);
-
-      const currentMonthDate = new Date(fetchInfo.start);
-      /*
+    // 현재 보고 있는 달 계산 (7일 더해서 현재 달로 이동)
+     /*
         보고 있는 달이 3월인데, log로 찍으면 1월이라는 오류 발생
         -> fetchInfo.start는 캘린더에 보이는 "이전 달의 첫 날짜"일 수 있음
         -> 7일 더해서 "현재 달"의 날짜로 이동
       */ 
-      currentMonthDate.setDate(currentMonthDate.getDate() + 7); 
+    const currentMonthDate = new Date(fetchInfo.start);
+    currentMonthDate.setDate(currentMonthDate.getDate() + 7);
+    const currentMonth = currentMonthDate.getMonth();
+    const currentYear = currentMonthDate.getFullYear();
 
-      const currentMonth = currentMonthDate.getMonth();
-      const currentYear = currentMonthDate.getFullYear();
-
-      // console.log(`현재 보고 있는 달: ${currentYear}년 ${currentMonth + 1}월`);
-
-      // 시작 날짜와 끝 날짜를 파라미터로 보내기
-      fetch(`http://localhost:8088/api/holidays/get-holiday?startYear=${yearStart}&startMonth=${monthStart}&endYear=${yearEnd}&endMonth=${monthEnd}`)
-        .then((res) => res.json())
-        .then((data) => {
-          // console.log("공휴일", data);
-
-          holidayDates.value = data.map((holiday) => holiday.holidayDate); // 공휴일 날짜 저장
-
-          const holidayEvents = data.map((holiday) => {
+    // 공휴일 API
+    const holidayPromise = fetch(
+      `http://localhost:8088/api/holidays/get-holiday?startYear=${yearStart}&startMonth=${monthStart}&endYear=${yearEnd}&endMonth=${monthEnd}`
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error("공휴일 조회 실패");
+        return res.json();
+      })
+      .then((data) => {
+        holidayDates.value = data.map((holiday) => holiday.holidayDate);
+        return data.map((holiday) => {
           const holidayDate = new Date(holiday.holidayDate);
           const isCurrentMonth =
             holidayDate.getMonth() === currentMonth &&
             holidayDate.getFullYear() === currentYear;
 
-            return {
-              title: holiday.name,
-              start: holiday.holidayDate,
-              allDay: true,
-              backgroundColor: isCurrentMonth ? "#ff6666" : "#ffe5e5",
-              textColor: isCurrentMonth ? "white" : "#944",
-              borderColor: isCurrentMonth ? "#ff4444" : "#f5aaaa",
-        };
+          return {
+            title: holiday.name,
+            start: holiday.holidayDate,
+            allDay: true,
+            backgroundColor: isCurrentMonth ? "#ff6666" : "#ffe5e5",
+            textColor: isCurrentMonth ? "white" : "#944",
+            borderColor: isCurrentMonth ? "#ff4444" : "#f5aaaa",
+          };
+        });
       });
 
-          // 기존 휴가 이벤트를 포함한 새로운 이벤트 배열 생성
-          const combinedEvents = [...events.value, ...holidayEvents];
-          successCallback(combinedEvents);
-        })
-        .catch((error) => {
-          console.error("공휴일 로딩 실패:", error);
-          failureCallback(error);
-        });
-    },
+    // 내 휴가 API
+    const vacationPromise = fetch("http://localhost:8088/api/vacations/my-vacations", {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`,
+      },
+      withCredentials: true,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("내 휴가 내역 조회 실패");
+        return res.json();
+      })
+      .then((data) => {
+        vacationData.value = data;  
+        console.log("vacationData", data);
 
-    // 숫자 빨간날 표시: 일요일, 공휴일일
-    dayCellClassNames: (arg) => {
-      const year = arg.date.getFullYear();
-      const month = String(arg.date.getMonth() + 1).padStart(2, '0');
-      const dayNum = String(arg.date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${dayNum}`; 
+        return data.map((vacation) => {
+        const startDate = vacation.startAt;
+        const endDateObj = new Date(vacation.endAt);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+        const endDateStr = endDateObj.toISOString().slice(0, 10);
 
-      const day = arg.date.getDay();
-      const classes = [];
+        const startDateObj = new Date(startDate);
+        // currentYear, currentMonth 는 위에서 정의된 값으로 사용
+        const isCurrentMonth =
+          startDateObj.getFullYear() === currentYear &&
+          startDateObj.getMonth() === currentMonth;
 
-      if (day === 0) {
-        classes.push("sunday");
-      }
+        let backgroundColor = "";
+        let textColor = "white";
+        let borderColor = "";
 
-      if (holidayDates.value.includes(dateStr)) {
-        classes.push("holiday");
-      }
+        // 승인 대기 휴가색
+        if (vacation.status === "Pending") {
+          if (isCurrentMonth) {
+            backgroundColor = "#666666";  
+            textColor = "white";
+            borderColor = "#444444";
+          } else {
+            backgroundColor = "#cccccc";  
+            textColor = "#555555";
+            borderColor = "#aaaaaa";
+          }
+        } else {
+          // 승인 완료 휴가색
+          if (isCurrentMonth) {
+            backgroundColor = "#3399ff";
+            borderColor = "#007acc";
+          } else {
+            backgroundColor = "#b3d1ff";
+            borderColor = "#99bbff";
+          }
+          textColor = "white";
+        }
+        return {
+          title: "휴가",
+          start: startDate,
+          end: endDateStr,
+          allDay: true,
+          backgroundColor,
+          textColor,
+          borderColor,
+        };
+      });
+    });
 
-      return classes;
-    },
+    // 두 Promise 모두 완료 후 합쳐서 successCallback 호출
+    Promise.all([holidayPromise, vacationPromise])
+      .then(([holidayEvents, vacationEvents]) => {
+        const combinedEvents = [...vacationEvents, ...holidayEvents];
+        successCallback(combinedEvents);
+      })
+      .catch((error) => {
+        console.error("이벤트 로딩 실패:", error);
+        failureCallback(error);
+      });
+  },
 
-    height: 650, // FullCalendar 전체 높이 
-    contentHeight: 450, // 내부 콘텐츠 
-    dayMaxEvents: 2,  // 같은 날에 2개까지만 표시하고, 초과 시 "+더보기" 버튼 자동 생성(FullCalendar에서 기본적으로 제공하는 기능)
-    dateClick: (info) => openEventModal(info.dateStr),
+  dayCellClassNames: (arg) => {
+    const year = arg.date.getFullYear();
+    const month = String(arg.date.getMonth() + 1).padStart(2, "0");
+    const dayNum = String(arg.date.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${dayNum}`;
 
-    // 달력의 상단 툴바 설정
-    headerToolbar: { 
-      left: 'prev,next today',
-      center: 'title',         
-      right: 'dayGridMonth,dayGridWeek' 
-    },
+    const day = arg.date.getDay();
+    const classes = [];
 
-    // 반응형을 위한 추가 옵션
-    windowResize: function() {
-      adjustCalendarSize();
-    },
-  });
+    if (day === 0) classes.push("sunday");
+    if (holidayDates.value.includes(dateStr)) classes.push("holiday");
 
-  // 반응형 설정
-  const adjustCalendarSize = () => {
-    const windowWidth = window.innerWidth;
+    return classes;
+  },
 
-    // 화면이 768px 이하일 경우
-    if (windowWidth <= 768) {
-      calendarOptions.value.height = 350; // 높이 줄이기
-      calendarOptions.value.contentHeight = 250; // 콘텐츠 높이 줄이기
-      calendarOptions.value.dayMaxEvents = 0;  // 더 적은 이벤트 표시, "+더보기" 버튼 바로 보이게
-      calendarOptions.value.headerToolbar = {
-        left: 'prev,next', 
-        center: 'title',  
-        right: ''          // 우측 버튼 없애기
+  height: 650,
+  contentHeight: 450,
+  dayMaxEvents: 2,
+  dateClick: (info) => openEventModal(info.dateStr),
+
+  headerToolbar: {
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,dayGridWeek",
+  },
+
+  windowResize: () => {
+    adjustCalendarSize();
+  },
+});
+
+const adjustCalendarSize = () => {
+  const windowWidth = window.innerWidth;
+
+  if (windowWidth <= 768) {
+    calendarOptions.value.height = 350;
+    calendarOptions.value.contentHeight = 250;
+    calendarOptions.value.dayMaxEvents = 0;
+    calendarOptions.value.headerToolbar = {
+      left: "prev,next",
+      center: "title",
+      right: "",
     };
-    } else {
-      // 기본 크기로 설정
-      calendarOptions.value.height = 650;
-      calendarOptions.value.contentHeight = 450;
-      calendarOptions.value.dayMaxEvents = 2;
-      calendarOptions.value.headerToolbar = { // 기본 툴바
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,dayGridWeek'
+  } else {
+    calendarOptions.value.height = 650;
+    calendarOptions.value.contentHeight = 450;
+    calendarOptions.value.dayMaxEvents = 2;
+    calendarOptions.value.headerToolbar = {
+      left: "prev,next today",
+      center: "title",
+      right: "dayGridMonth,dayGridWeek",
     };
-    }
-  };
+  }
+};
 
-  onMounted(() => {
-    // FullCalendar 초기화 및 반응형 설정 적용
-    if (calendarRef.value) {
-      adjustCalendarSize(); // 화면 크기에 맞는 초기화
-      calendarRef.value.getApi(); 
-    }
+onMounted(() => {
+  if (calendarRef.value) {
+    adjustCalendarSize();
+    calendarRef.value.getApi();
+  }
 
-    // 화면 크기 변경 시마다 적용
-    window.addEventListener('resize', adjustCalendarSize);
+  window.addEventListener("resize", adjustCalendarSize);
+});
+
+onUnmounted(() => {
+  if (calendarRef.value) {
+    calendarRef.value.getApi().destroy();
+  }
+  window.removeEventListener("resize", adjustCalendarSize);
+});
+
+const openEventModal = (date) => {
+  selectedDate.value = date;
+
+  // vacationData.value에서 필터링
+  selectedEvents.value = vacationData.value.filter((vacation) => {
+    const start = new Date(vacation.startAt);
+    const end = new Date(vacation.endAt);
+    const clickedDate = new Date(date);
+
+    // end 날짜 inclusive
+    return clickedDate >= start && clickedDate <= end;
   });
 
-  onUnmounted(() => {
-    // FullCalendar 인스턴스를 제거
-    if (calendarRef.value) {
-      calendarRef.value.getApi().destroy();
-    }
-  });
+  showModal.value = true;
+};
 
-  // 리스너 정리
-  window.removeEventListener('resize', adjustCalendarSize);
 
-  const openEventModal = (date) => {
-    selectedDate.value = date;
-    selectedEvents.value = events.value.filter((event) => event.start === date);
-    showModal.value = true;
-  };
-
-  const closeModal = () => {
-    showModal.value = false;
-  };
+const closeModal = () => {
+  showModal.value = false;
+};
 </script>
 
 <style scoped>

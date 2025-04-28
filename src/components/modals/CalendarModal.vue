@@ -1,32 +1,55 @@
 <template>
-    <div class="cm-modal-overlay" @click.self="$emit('close')">
-      <div class="cm-modal-content">
-        <h3>{{ formattedDate }}</h3>
-        <ul v-if="selectedEvents.length > 0">
-          <li v-for="(event, index) in selectedEvents" :key="index">
-            {{ event.title }}
-          </li>
-        </ul>
-        <p v-else>해당 일자는 휴가자가 없습니다.</p>
-        <button @click="$emit('close')" class="cm-modal-close">닫기</button>
-      </div>
+  <div class="cm-modal-overlay" @click.self="$emit('close')">
+    <div class="cm-modal-content">
+      <h3>{{ formattedDate }}</h3>
+
+      <ul v-if="filteredEvents.length > 0">
+        <li v-for="(event, index) in filteredEvents" :key="index">
+          {{ event.reason }}
+          <ul>
+            <li v-for="(used, idx) in event.usedVacations" :key="idx">
+              {{ used.vacationTypeName }}: {{ used.usedDays }}일
+            </li>
+            ({{ event.startAt }} ~ {{ event.endAt }})
+          </ul>
+        </li>
+      </ul>
+
+      <p v-else>해당 일자는 휴가자가 없습니다.</p>
+
+      <button @click="$emit('close')" class="cm-modal-close">닫기</button>
     </div>
-  </template>
-  
+  </div>
+</template>
+
 <script setup>
-  import { computed, defineProps } from 'vue';
-  import dayjs from 'dayjs';
-  
-  const props = defineProps({
-    selectedDate: String,
-    selectedEvents: Array,
+import { computed, defineProps } from 'vue';
+import dayjs from 'dayjs';
+
+const props = defineProps({
+  selectedDate: String,      
+  selectedEvents: Array      
+});
+
+// selectedDate에 해당하는 휴가만 필터링
+const filteredEvents = computed(() => {
+  if (!props.selectedDate || !props.selectedEvents.length) return [];
+
+  const clickedDate = new Date(props.selectedDate);
+
+  return props.selectedEvents.filter(event => {
+    const start = new Date(event.startAt);
+    const end = new Date(event.endAt);
+    return clickedDate >= start && clickedDate <= end;
   });
-  
-  // 날짜 포맷 계산
-  const formattedDate = computed(() => {
-    return dayjs(props.selectedDate).format('YYYY년 M월 D일');
-  });
+});
+
+// 날짜 포맷 계산
+const formattedDate = computed(() => {
+  return dayjs(props.selectedDate).format('YYYY년 M월 D일');
+});
 </script>
+
   
   
 <style scoped>
