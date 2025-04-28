@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -114,6 +114,22 @@ onMounted(() => {
     onChange: (selectedDates) => {
       vacationDate.value = selectedDates.map((date) => date.toISOString().split("T")[0]);
     },
+  });
+});
+
+watch(selectedVacationTypes, (newVal, oldVal) => {
+  // 새로 추가된 휴가 타입에 대해서만 usedDaysByType 값을 1로 세팅
+  const addedTypes = newVal.filter((type) => !oldVal.includes(type));
+  addedTypes.forEach((type) => {
+    if (usedDaysByType.value[type] === 0) {
+      usedDaysByType.value[type] = 1;
+    }
+  });
+
+  // 체크 해제된 휴가 타입은 0으로 초기화
+  const removedTypes = oldVal.filter((type) => !newVal.includes(type));
+  removedTypes.forEach((type) => {
+    usedDaysByType.value[type] = 0;
   });
 });
 </script>
