@@ -66,7 +66,26 @@ const usedDaysByType = ref({
   "대체휴가": 0,
   "포상휴가": 0,
 });
+const vacationBalances = ref([]);  // 잔여 휴가 수량을 저장할 변수
 
+// 휴가 잔여 수량 가져오기
+const fetchVacationBalances = async () => {
+  try {
+    const response = await axios.get("http://localhost:8088/api/vacations/balance", {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`,
+      },
+      withCredentials: true,
+    });
+    vacationBalances.value = response.data;
+    console.log(vacationBalances.value);
+  } catch (error) {
+    alert("휴가 잔여 수량을 불러오는데 실패했습니다.");
+  }
+};
+
+
+// 휴가 신청
 const submitVacation = async () => {
   if (vacationDate.value.length === 0) {
     alert("휴가 날짜를 선택해주세요.");
@@ -75,6 +94,17 @@ const submitVacation = async () => {
   if (selectedVacationTypes.value.length === 0) {
     alert("휴가 종류를 최소 1개 선택해주세요.");
     return;
+  }
+
+  // 휴가 종류별 잔여 수량 확인
+  for (const type of selectedVacationTypes.value) {
+    const vacationBalance = vacationBalances.value.find(v => v.vacationTypeName === type);
+    const usedDays = usedDaysByType[type];
+
+    if (!vacationBalance || vacationBalance.remainingDays < usedDays) {
+      alert(`${type} 휴가가 부족합니다. 남은 일수는 ${vacationBalance ? vacationBalance.remainingDays : 0}일입니다.`);
+      return;  // 부족하면 바로 리턴
+    }
   }
 
   try {
@@ -115,7 +145,11 @@ const submitVacation = async () => {
     alert("휴가 신청이 완료되었습니다!");
     router.push("/home");
   } catch (error) {
-    alert(error.message || "휴가 신청에 실패했습니다. 다시 시도해주세요.");
+      if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message);
+    } else {
+      alert('알 수 없는 오류가 발생했습니다.');
+    }
   }
 };
 
@@ -141,6 +175,7 @@ onMounted(() => {
       vacationDate.value = selectedDates.map((date) => date.toISOString().split("T")[0]);
     },
   });
+  fetchVacationBalances();
 });
 
 // watch로 selectedVacationTypes 감시하기~

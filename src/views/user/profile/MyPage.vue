@@ -4,9 +4,17 @@
     <div class="divider"></div>
 
     <div class="mypage-vacation-balance">
+      <!-- 전체 잔여 휴가 수 -->
       <span class="mypage-highlighted-text">
         <p>잔여 휴가수 <span class="highlight">{{ remainingLeaves }}</span>일</p>
       </span>
+
+      <!-- 종류별 잔여 휴가 수 -->
+      <div class="mypage-vacation-types">
+        <div v-for="(vacation, index) in vacationBalances" :key="index" class="vacation-item">
+          <span>{{ vacation.vacationTypeName }} {{ vacation.remainingDays }}</span>
+        </div>
+      </div>
     </div>
     
     <div class="mypage-button-group">
@@ -24,11 +32,12 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import Cookies from "js-cookie";
 
-// 사용자 이름을 저장하는 변수
 const userName = ref(""); 
 
-// 잔여 휴가 수 (예제: 10일 남음 -> 나중에 다시 구현해야 함..)
-const remainingLeaves = ref(10);
+// 잔여 휴가 수
+const remainingLeaves = ref(0);  // 전체
+const vacationBalances = ref([]);  // 휴가별
+
 const router = useRouter();
 
 // 사용자 정보 가져오기 함수
@@ -47,7 +56,35 @@ const fetchUserInfo = async () => {
   }
 };
 
-onMounted(fetchUserInfo);
+// 잔여 휴가 수 조회하는 함수
+const fetchRemainingLeaves = async () => {
+  try {
+    const response = await axios.get("http://localhost:8088/api/vacations/balance", {
+      headers: {
+        Authorization: `Bearer ${Cookies.get("Token")}`,
+      },
+      withCredentials: true,
+    });
+    // console.log("잔여 휴가가", response);
+    
+    const balances = response.data;
+    
+    let totalRemaining = 0;
+    balances.forEach(balance => {
+      totalRemaining += balance.remainingDays;
+    });
+
+    remainingLeaves.value = totalRemaining;
+    vacationBalances.value = balances; // 종류별도 저장
+  } catch (error) {
+    console.error("잔여 휴가 수 가져오기 실패:", error.response ? error.response.data : error.message);
+  }
+};
+
+onMounted(() => {
+  fetchUserInfo();
+  fetchRemainingLeaves();
+});
 
 const goToMainPage = () => {
     router.push("/home");
@@ -99,6 +136,20 @@ const vacations = () => {
   font-weight: bold;  
   font-size: 30px;  
 }
+
+.mypage-vacation-types {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center; 
+}
+
+.vacation-item {
+  font-size: 15px;
+  color: #333;
+}
+
 
 .divider {
   width: 100%;
