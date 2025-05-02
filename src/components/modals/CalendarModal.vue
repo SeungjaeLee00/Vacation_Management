@@ -43,7 +43,9 @@ const filteredEvents = computed(() => {
   return props.selectedEvents.filter(event => {
     const start = new Date(event.startAt);
     const end = new Date(event.endAt);
-    return clickedDate >= start && clickedDate <= end;
+    
+    // rejected 상태인 휴가는 모달 안 보이게
+    return event.status !== 'Rejected' && clickedDate >= start && clickedDate <= end;
   });
 });
 

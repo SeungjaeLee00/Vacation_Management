@@ -50,10 +50,10 @@ router.beforeEach((to, from, next) => {
 
   // 토큰이 없으면 로그인 페이지로 리다이렉트
   if (!token) {
+    alert('세션이 만료되었습니다. 다시 로그인해주세요.');
     return next('/login');
   }
 
-  // 모든 조건 통과하면 이동동
   next();
 });
 

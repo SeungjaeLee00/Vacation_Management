@@ -246,7 +246,7 @@ const resetFilters = () => {
 
   .vf-vacationType{
     /* list-style-type: none; */
-    text-align: left;
+    /* text-align: left; */
 
   }
 

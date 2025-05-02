@@ -135,7 +135,7 @@ const submitVacation = async () => {
       reason: reason.value,
     };
     
-
+    // 휴가 신청 API
     await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
       headers: {
         Authorization: `Bearer ${Cookies.get("Token")}`,

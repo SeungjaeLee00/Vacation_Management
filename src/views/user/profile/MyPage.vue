@@ -31,6 +31,8 @@ import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useNotificationStore } from '@/stores/notificationStore';
+import { showVacationToast } from "@/utils/showVacationToast";
 
 const userName = ref(""); 
 
@@ -39,6 +41,8 @@ const remainingLeaves = ref(0);  // 전체
 const vacationBalances = ref([]);  // 휴가별
 
 const router = useRouter();
+
+const store = useNotificationStore();
 
 // 사용자 정보 가져오기 함수
 const fetchUserInfo = async () => {
@@ -49,7 +53,7 @@ const fetchUserInfo = async () => {
       },
       withCredentials: true,
     });
-   console.log("response", response)
+  //  console.log("response", response)
     userName.value = response.data.name;
   } catch (error) {
     console.error("사용자 정보 가져오기 실패:", error.response ? error.response.data : error.message);
@@ -65,7 +69,7 @@ const fetchRemainingLeaves = async () => {
       },
       withCredentials: true,
     });
-    // console.log("잔여 휴가가", response);
+    // console.log("잔여 휴가", response);
     
     const balances = response.data;
     
@@ -81,9 +85,26 @@ const fetchRemainingLeaves = async () => {
   }
 };
 
+// 내 휴가 내역 API
+const fetchMyVacations = async () => {
+  const response = await axios.get("http://localhost:8088/api/vacations/my-vacations", {
+    headers: {
+      Authorization: `Bearer ${Cookies.get("Token")}`,
+    },
+    withCredentials: true,
+  });
+
+  const vacations = response.data;
+  // console.log("vacations", vacations);
+
+  const changed = store.getUpdatedVacations(vacations);
+  changed.forEach(v => showVacationToast(v));
+};
+
 onMounted(() => {
   fetchUserInfo();
   fetchRemainingLeaves();
+  fetchMyVacations();
 });
 
 const goToMainPage = () => {

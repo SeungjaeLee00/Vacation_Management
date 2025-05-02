@@ -22,6 +22,9 @@ import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
 import Cookies from "js-cookie";
 import CalendarModal from "@/components/modals/CalendarModal.vue";
+import { useNotificationStore } from '@/stores/notificationStore';
+import { showVacationToast } from "@/utils/showVacationToast";
+
 
 const calendarRef = ref(null);
 const selectedDate = ref("");
@@ -29,6 +32,9 @@ const selectedEvents = ref([]);
 const showModal = ref(false);
 const vacationData = ref([]);
 const holidayDates = ref([]);
+// const router = useRouter();
+
+const store = useNotificationStore();
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin, interactionPlugin],
@@ -80,7 +86,7 @@ const calendarOptions = ref({
         });
       });
 
-    // 내 휴가 API
+    // 내 휴가 내역 API
     const vacationPromise = fetch("http://localhost:8088/api/vacations/my-vacations", {
       headers: {
         Authorization: `Bearer ${Cookies.get("Token")}`,
@@ -92,17 +98,28 @@ const calendarOptions = ref({
         return res.json();
       })
       .then((data) => {
-        vacationData.value = data;  
-        console.log("vacationData", data);
+        // const filteredData = data.filter(
+        //   (vacation) => vacation.status === "Pending" || vacation.status === "Approved"
+        // );
 
-        return data.map((vacation) => {
+      const updatedVacations = store.getUpdatedVacations(data);
+      // 상태 변경 알림 처리
+      updatedVacations.forEach(showVacationToast);
+
+      vacationData.value = data;
+
+      // 캘린더에선 Rejected 휴가 안보이게 필터링
+      const filteredDataForCalendar = data.filter(
+        (vacation) => vacation.status !== "Rejected"
+      );
+
+      return filteredDataForCalendar.map((vacation) => {
         const startDate = vacation.startAt;
         const endDateObj = new Date(vacation.endAt);
         endDateObj.setDate(endDateObj.getDate() + 1);
         const endDateStr = endDateObj.toISOString().slice(0, 10);
 
         const startDateObj = new Date(startDate);
-        // currentYear, currentMonth 는 위에서 정의된 값으로 사용
         const isCurrentMonth =
           startDateObj.getFullYear() === currentYear &&
           startDateObj.getMonth() === currentMonth;
@@ -111,28 +128,16 @@ const calendarOptions = ref({
         let textColor = "white";
         let borderColor = "";
 
-        // 승인 대기 휴가색
         if (vacation.status === "Pending") {
-          if (isCurrentMonth) {
-            backgroundColor = "#666666";  
-            textColor = "white";
-            borderColor = "#444444";
-          } else {
-            backgroundColor = "#cccccc";  
-            textColor = "#555555";
-            borderColor = "#aaaaaa";
-          }
-        } else {
-          // 승인 완료 휴가색
-          if (isCurrentMonth) {
-            backgroundColor = "#3399ff";
-            borderColor = "#007acc";
-          } else {
-            backgroundColor = "#b3d1ff";
-            borderColor = "#99bbff";
-          }
-          textColor = "white";
-        }
+          backgroundColor = isCurrentMonth ? "#f7ed5c" : "#fcfad9";
+          textColor = "#5c5121";
+          borderColor = isCurrentMonth ? "#ccc44e" : "#d1c177";
+        } else if (vacation.status === "Approved") {
+          backgroundColor = isCurrentMonth ? "#6bd13f" : "#bbe0ab";
+          textColor = "#1a4209";
+          borderColor = isCurrentMonth ? "#5cb536" : "#7aab65";
+        } 
+
         return {
           title: "휴가",
           start: startDate,
@@ -142,8 +147,8 @@ const calendarOptions = ref({
           textColor,
           borderColor,
         };
-      });
     });
+  });
 
     // 두 Promise 모두 완료 후 합쳐서 successCallback 호출
     Promise.all([holidayPromise, vacationPromise])
@@ -212,12 +217,13 @@ const adjustCalendarSize = () => {
   }
 };
 
+// console.log("vacationData", vacationData)
+
 onMounted(() => {
   if (calendarRef.value) {
     adjustCalendarSize();
     calendarRef.value.getApi();
   }
-
   window.addEventListener("resize", adjustCalendarSize);
 });
 
@@ -243,7 +249,6 @@ const openEventModal = (date) => {
 
   showModal.value = true;
 };
-
 
 const closeModal = () => {
   showModal.value = false;
