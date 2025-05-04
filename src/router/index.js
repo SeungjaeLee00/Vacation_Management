@@ -9,6 +9,7 @@ import ForgotPassword from "@/views/user/account/ForgotPassword.vue";
 import ResetPassword from "@/views/user/profile/ResetPassword.vue";
 import ChangeName from "@/views/user/profile/ChangeName.vue";
 import CheckUser from "@/views/user/profile/CheckUser.vue";
+import axios from "axios";
 
 const routes = [
   { path: "/", component: LoginPage },
@@ -31,30 +32,24 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const token = document.cookie.split(';').find(cookie => cookie.trim().startsWith('Token'));
-
-  // console.log(token);
-  // if (token) {
-  //   const tokenValue = token.split('Token')[1];
-  //   console.log(tokenValue);
-  // } else {
-  //   console.log('Token이 없습니다');
-  // }
-
-  // 로그인 관련 조건 검사
-  // if (to.path === '/login' || to.path === '/signup' || to.path === '/find-password') {
-    if (to.path === '/login' || to.path === '/find-password') {
-    return next();  // 로그인, 회원가입, 비밀번호 찾기 페이지로 이동할 수 있게 허용
+router.beforeEach(async (to, from, next) => {
+  // 로그인 관련 페이지로 이동하는 경우는 바로 허용
+  if (to.path === '/login' || to.path === '/find-password') {
+    return next();  
   }
 
-  // 토큰이 없으면 로그인 페이지로 리다이렉트
-  if (!token) {
+  // 토큰을 확인하기 위해 백엔드에 요청을 보내 인증 여부를 체크
+  try {
+    await axios.get("http://localhost:8088/api/user/me", {
+      withCredentials: true,
+    });
+
+    // console.log("response", response)
+    next();  
+  } catch (error) {
     alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-    return next('/login');
+    next('/login');
   }
-
-  next();
 });
 
 export default router;

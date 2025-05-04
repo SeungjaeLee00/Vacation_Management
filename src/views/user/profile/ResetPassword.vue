@@ -30,7 +30,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const currentPassword = ref(""); 
 const newPassword = ref(""); 
@@ -55,9 +54,6 @@ const submitChangePassword = async () => {
 
   try {
     const response = await axios.put("http://localhost:8088/api/user/change-password", passwordData, {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`,
-      },
       withCredentials: true,
     });
 

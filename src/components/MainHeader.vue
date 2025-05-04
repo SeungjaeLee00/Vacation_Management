@@ -23,7 +23,7 @@
 <script setup>
 import { ref, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
-import useAuth from './useAuth';
+import useAuth from '../utils/useAuth';
 
 const logoLong = require("@/assets/ta9_logo_long.png");
 const logoShort = require("@/assets/ta9_logo.png");

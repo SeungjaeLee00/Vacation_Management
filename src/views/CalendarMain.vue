@@ -20,11 +20,9 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
-import Cookies from "js-cookie";
 import CalendarModal from "@/components/modals/CalendarModal.vue";
 import { useNotificationStore } from '@/stores/notificationStore';
 import { showVacationToast } from "@/utils/showVacationToast";
-
 
 const calendarRef = ref(null);
 const selectedDate = ref("");
@@ -88,20 +86,14 @@ const calendarOptions = ref({
 
     // 내 휴가 내역 API
     const vacationPromise = fetch("http://localhost:8088/api/vacations/my-vacations", {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`,
-      },
-      withCredentials: true,
+      // fetch는 기본 get임
+      credentials: 'include',
     })
       .then((res) => {
         if (!res.ok) throw new Error("내 휴가 내역 조회 실패");
         return res.json();
       })
       .then((data) => {
-        // const filteredData = data.filter(
-        //   (vacation) => vacation.status === "Pending" || vacation.status === "Approved"
-        // );
-
       const updatedVacations = store.getUpdatedVacations(data);
       // 상태 변경 알림 처리
       updatedVacations.forEach(showVacationToast);

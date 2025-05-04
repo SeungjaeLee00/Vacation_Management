@@ -21,7 +21,6 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import Cookies from "js-cookie";
 
 const newName = ref(""); 
 const router = useRouter();
@@ -41,10 +40,7 @@ const updateName = async () => {
       "http://localhost:8088/api/user/update-name", 
       updateData, 
       {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("Token")}`, // 쿠키에서 Token을 가져와 Authorization에 추가
-        },
-        withCredentials: true, // 쿠키를 포함하여 요청
+        withCredentials: true, 
       }
     );
     alert("이름 변경이 완료되었습니다!");

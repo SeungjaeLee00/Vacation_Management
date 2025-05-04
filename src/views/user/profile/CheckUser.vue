@@ -20,7 +20,6 @@
   import { ref } from "vue";
   import { useRouter, useRoute } from "vue-router";
   import axios from "axios";
-  import Cookies from "js-cookie";
   
   const password = ref(""); 
   const router = useRouter();
@@ -34,9 +33,7 @@ const verifyPassword = async () => {
     const response = await axios.post(
       "http://localhost:8088/api/user/check-password", 
       { password: password.value },
-      { headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`, 
-      },
+      {
         withCredentials: true, 
       }
     );

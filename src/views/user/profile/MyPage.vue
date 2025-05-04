@@ -30,7 +30,6 @@
 import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { useNotificationStore } from '@/stores/notificationStore';
 import { showVacationToast } from "@/utils/showVacationToast";
 
@@ -48,9 +47,6 @@ const store = useNotificationStore();
 const fetchUserInfo = async () => {
   try {
     const response = await axios.get("http://localhost:8088/api/user/me", {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`, 
-      },
       withCredentials: true,
     });
   //  console.log("response", response)
@@ -64,9 +60,6 @@ const fetchUserInfo = async () => {
 const fetchRemainingLeaves = async () => {
   try {
     const response = await axios.get("http://localhost:8088/api/vacations/balance", {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`,
-      },
       withCredentials: true,
     });
     // console.log("잔여 휴가", response);
@@ -88,9 +81,6 @@ const fetchRemainingLeaves = async () => {
 // 내 휴가 내역 API
 const fetchMyVacations = async () => {
   const response = await axios.get("http://localhost:8088/api/vacations/my-vacations", {
-    headers: {
-      Authorization: `Bearer ${Cookies.get("Token")}`,
-    },
     withCredentials: true,
   });
 

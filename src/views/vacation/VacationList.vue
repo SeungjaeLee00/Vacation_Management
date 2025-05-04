@@ -76,7 +76,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
-import Cookies from "js-cookie";
 import VuePagination from "@/components/VuePagination.vue";
 import VacationDetailModal from "@/components/modals/VacationDetailModal.vue";
 
@@ -92,9 +91,6 @@ const leaves = ref([]);
 const fetchVacationRequests = async () => {
   try {
     const response = await axios.get('http://localhost:8088/api/vacations/my-vacations', { 
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`, 
-      },
       withCredentials: true,
     });
     // console.log(response.data)
@@ -243,13 +239,7 @@ const resetFilters = () => {
     justify-self: center;
     margin-top: 20px;
   }
-
-  .vf-vacationType{
-    /* list-style-type: none; */
-    /* text-align: left; */
-
-  }
-
+  
   .vacation-list-table th,
   .vacation-list-table td {
     border: 1px solid #ddd;

@@ -46,7 +46,6 @@
 import { ref, onMounted, watch, reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import Cookies from "js-cookie";
 import dayjs from 'dayjs';
 
 import flatpickr from "flatpickr";
@@ -72,13 +71,10 @@ const vacationBalances = ref([]);  // 잔여 휴가 수량을 저장할 변수
 const fetchVacationBalances = async () => {
   try {
     const response = await axios.get("http://localhost:8088/api/vacations/balance", {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`,
-      },
       withCredentials: true,
     });
     vacationBalances.value = response.data;
-    console.log(vacationBalances.value);
+    // console.log(vacationBalances.value);
   } catch (error) {
     alert("휴가 잔여 수량을 불러오는데 실패했습니다.");
   }
@@ -137,9 +133,6 @@ const submitVacation = async () => {
     
     // 휴가 신청 API
     await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
-      headers: {
-        Authorization: `Bearer ${Cookies.get("Token")}`,
-      },
       withCredentials: true,
     });
     alert("휴가 신청이 완료되었습니다!");
