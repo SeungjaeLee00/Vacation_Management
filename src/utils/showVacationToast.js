@@ -3,8 +3,6 @@ import "vue3-toastify/dist/index.css";
 // import { useRouter } from 'vue-router';
 import router from "@/router"; // useRouter() 대신 직접 import
 
-
-
 export function showVacationToast(vacation) {
   // const router = useRouter();
   if (!["Approved", "Rejected"].includes(vacation.status)) return;

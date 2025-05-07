@@ -1,6 +1,6 @@
 <template>
   <div class="calendar-wrapper">
-    <!-- <button class="vacation-button" @click="goToVacationForm">+ 휴가 신청</button> -->
+    <!-- <button class="vacation-button" @click="goToVacationForm">내 부서 휴가</button> -->
     <div class="calendar-container">
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </div>

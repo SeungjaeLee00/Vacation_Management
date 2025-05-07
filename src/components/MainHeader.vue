@@ -7,6 +7,7 @@
     <nav :class="{ 'nav-open': isNavOpen }">
       <ul>
         <li><button @click="goToVacationForm">휴가 신청</button></li>
+        <li><button @click="goToVacaLog">내 부서 휴가 보기</button></li>
         <li><button @click="goToMyPage">마이페이지</button></li>
         <li><button @click="handleAuth">{{ isLoggedIn  ? "로그아웃" : "로그인" }}</button></li>
       </ul>
@@ -21,31 +22,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import useAuth from '../utils/useAuth';
+import { useAuthStore } from '@/stores/auth';
 
 const logoLong = require("@/assets/ta9_logo_long.png");
 const logoShort = require("@/assets/ta9_logo.png");
 
 const router = useRouter();
-const { isLoggedIn, checkLoginStatus, logout } = useAuth();
+const auth = useAuthStore();
+const isLoggedIn = computed(() => auth.isLoggedIn);
+
 const isNavOpen = ref(false);  // 메뉴 토글 상태
 const headerLogo = ref(logoLong);
 const logoClass = ref("header-logo-long")
 
-// 로그인/로그아웃 처리
 const handleAuth = () => {
   if (isLoggedIn.value) {
-    logout(); 
-    router.push("/login"); 
+    auth.logout();
+    router.push("/login");
   } else {
-    router.push("/login"); 
+    router.push("/login");
   }
 };
 
 const goToVacationForm = () => {
   router.push("/vacation-form");
+};
+
+const goToVacaLog = () => {
+  router.push("/department-vacations");
 };
 
 const goToMainPage = () => {
@@ -73,13 +79,8 @@ const updateLogo = () => {
 };
 
 onMounted(() => {
-  checkLoginStatus();
   updateLogo();
   window.addEventListener("resize", updateLogo);
-});
-
-watchEffect(() => {
-  checkLoginStatus(); 
 });
 </script>
 

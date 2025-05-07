@@ -1,7 +1,8 @@
-import { ref, watchEffect } from 'vue';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 import axios from 'axios';
 
-export default function useAuth() {
+export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = ref(false);
   const isTokenRefreshing = ref(false);
 
@@ -10,7 +11,7 @@ export default function useAuth() {
     try {
       // 로그인 상태 확인 API 호출 (토큰을 자동으로 쿠키에서 전송)
       await axios.get('http://localhost:8088/api/user/me', {
-        withCredentials: true, // 쿠키를 자동으로 전송
+        withCredentials: true, 
       });
   
       isLoggedIn.value = true;
@@ -38,33 +39,40 @@ export default function useAuth() {
           // 다시 상태 확인
           await checkLoginStatus();
         } catch (refreshError) {
-          console.error('리프레시 토큰 만료 또는 오류:', refreshError);
+          // console.error('리프레시 토큰 만료 또는 오류:', refreshError);
           logout();
         } finally {
           isTokenRefreshing.value = false;
         }
       } else {
-        console.error('토큰 유효성 검사 실패:', error);
+        // console.error('토큰 유효성 검사 실패:', error);
         isLoggedIn.value = false;
       }
     }
   };
   
   // 로그아웃 함수
-  const logout = () => {
-    isLoggedIn.value = false;
+  const logout = async () => {
+    try{
+      await axios.post(
+        'http://localhost:8088/api/user/logout',
+        {}, 
+        { withCredentials: true }
+      );
+      console.log("로그아웃 성공");
+      // await checkLoginStatus();
+    } catch (error) {
+      console.log("로그아웃 실패, ", error);
+    } finally {
+      isLoggedIn.value = false;
+    }
   };
-
-  // 컴포넌트가 로드될 때 실행
-  watchEffect(() => {
-    checkLoginStatus();
-  });
 
   return {
     isLoggedIn,
     checkLoginStatus,
     logout,
   };
-}
+});
 
 

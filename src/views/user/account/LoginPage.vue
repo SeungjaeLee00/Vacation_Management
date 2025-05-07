@@ -36,10 +36,6 @@
       });
       // console.log("response", response);
   
-      // 쿠키에 저장된 accessToken 확인
-      // const accessToken = document.cookie.split(';').find(cookie => cookie.trim().startsWith('accessToken='));
-      // console.log('accessToken', accessToken);
-      
       if (response.status === 200) {
         isLoggedIn.value = true;
         alert("로그인 성공")
