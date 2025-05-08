@@ -66,6 +66,7 @@ const calendarOptions = ref({
         return res.json();
       })
       .then((data) => {
+        // console.log("공휴일API 응답 데이터:", data); 
         holidayDates.value = data.map((holiday) => holiday.holidayDate);
         return data.map((holiday) => {
           const holidayDate = new Date(holiday.holidayDate);
@@ -100,9 +101,9 @@ const calendarOptions = ref({
 
       vacationData.value = data;
 
-      // 캘린더에선 Rejected 휴가 안보이게 필터링
+      // 캘린더에선 Rejected, Cancelled 휴가 안보이게 필터링
       const filteredDataForCalendar = data.filter(
-        (vacation) => vacation.status !== "Rejected"
+        (vacation) => vacation.status !== "REJECTED" && vacation.status !== "CANCELLED"
       );
 
       return filteredDataForCalendar.map((vacation) => {
@@ -120,11 +121,11 @@ const calendarOptions = ref({
         let textColor = "white";
         let borderColor = "";
 
-        if (vacation.status === "Pending") {
+        if (vacation.status === "PENDING") {
           backgroundColor = isCurrentMonth ? "#f7ed5c" : "#fcfad9";
           textColor = "#5c5121";
           borderColor = isCurrentMonth ? "#ccc44e" : "#d1c177";
-        } else if (vacation.status === "Approved") {
+        } else if (vacation.status === "APPROVED") {
           backgroundColor = isCurrentMonth ? "#6bd13f" : "#bbe0ab";
           textColor = "#1a4209";
           borderColor = isCurrentMonth ? "#5cb536" : "#7aab65";

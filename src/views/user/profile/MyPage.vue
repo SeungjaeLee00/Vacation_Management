@@ -6,13 +6,17 @@
     <div class="mypage-vacation-balance">
       <!-- 전체 잔여 휴가 수 -->
       <span class="mypage-highlighted-text">
-        <p>잔여 휴가수 <span class="highlight">{{ remainingLeaves }}</span>일</p>
+        <p>잔여 휴가수 <span class="highlight">{{ totalRemainingLeaves }}</span>일</p>
       </span>
 
       <!-- 종류별 잔여 휴가 수 -->
       <div class="mypage-vacation-types">
-        <div v-for="(vacation, index) in vacationBalances" :key="index" class="vacation-item">
-          <span>{{ vacation.vacationTypeName }} {{ vacation.remainingDays }}</span>
+        <div
+          v-for="(type, index) in vacationTypes"
+          :key="index"
+          class="vacation-item"
+        >
+          <span>{{ type }} {{ remainingLeavesMap[type] ?? 0 }}일</span>
         </div>
       </div>
     </div>
@@ -33,14 +37,18 @@ import axios from "axios";
 import { useNotificationStore } from '@/stores/notificationStore';
 import { showVacationToast } from "@/utils/showVacationToast";
 
+const vacationTypes = [
+  "연차", "하계휴가", "대체휴가", "포상휴가"
+];
+
 const userName = ref(""); 
 
 // 잔여 휴가 수
-const remainingLeaves = ref(0);  // 전체
-const vacationBalances = ref([]);  // 휴가별
+const vacationBalances = ref([]);
+const totalRemainingLeaves = ref(0); // 총 잔여 일수
+const remainingLeavesMap = ref({});  // 휴가 종류별 남은 일수
 
 const router = useRouter();
-
 const store = useNotificationStore();
 
 // 사용자 정보 가져오기 함수
@@ -62,21 +70,26 @@ const fetchRemainingLeaves = async () => {
     const response = await axios.get("http://localhost:8088/api/vacations/balance", {
       withCredentials: true,
     });
-    // console.log("잔여 휴가", response);
+    // console.log("response", response)
     
-    const balances = response.data;
+    vacationBalances.value = response.data;
     
-    let totalRemaining = 0;
-    balances.forEach(balance => {
-      totalRemaining += balance.remainingDays;
+    let total = 0;
+    const resultMap = {};
+    response.data.forEach(item => {
+      resultMap[item.vacationTypeName] = item.remainingDays;
+      total += item.remainingDays;
     });
 
-    remainingLeaves.value = totalRemaining;
-    vacationBalances.value = balances; // 종류별도 저장
+    remainingLeavesMap.value = resultMap;
+    totalRemainingLeaves.value = total;
   } catch (error) {
-    console.error("잔여 휴가 수 가져오기 실패:", error.response ? error.response.data : error.message);
+    console.error("잔여 휴가 수 가져오기 실패:", error.response?.data || error.message);
+    remainingLeavesMap.value = {};
+    totalRemainingLeaves.value = 0;
   }
 };
+
 
 // 내 휴가 내역 API
 const fetchMyVacations = async () => {

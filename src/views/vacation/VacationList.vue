@@ -7,9 +7,10 @@
       <div class="vacation-list-filter-container">
         <select v-model="selectedStatus" class="vacation-list-filter-select">
           <option value="">전체 상태</option>
-          <option value="Approved">승인됨</option>
-          <option value="Pending">대기 중</option>
-          <option value="Rejected">거절됨</option>
+          <option value="APPROVED">승인됨</option>
+          <option value="PENDING">대기 중</option>
+          <option value="REJECTED">거절됨</option>
+          <option value="CANCELLED">취소됨</option>
         </select>
 
         <select v-model="sortOrder" class="vacation-list-filter-select">
@@ -68,8 +69,12 @@
       />
     </div>
 
-    <!-- 휴가 내용 상세 모달 -->
-    <VacationDetailModal v-if="selectedLeave" :leave="selectedLeave" @close="selectedLeave = null" />
+     <!-- 휴가 내용 상세 모달 -->
+     <VacationDetailModal v-if="selectedLeave" 
+      :leave="selectedLeave" 
+      @close="selectedLeave = null"
+      @vacation-cancelled="handleVacationCancelled" 
+    />
   </div>
 </template>
 
@@ -88,15 +93,15 @@ const itemsPerPage = 5;
 // 휴가 신청 리스트
 const leaves = ref([]);
 
+// 휴가 신청 목록 조회 API
 const fetchVacationRequests = async () => {
   try {
     const response = await axios.get('http://localhost:8088/api/vacations/my-vacations', { 
-      withCredentials: true,
+      withCredentials: true
     });
     // console.log(response.data)
     leaves.value = response.data;  
   } catch (error) {
-    // console.error("휴가 신청 내역을 가져오는 데 실패했습니다.", error);
     alert("휴가 신청 내역을 가져오는 데 실패했습니다.")
   }
 };
@@ -145,21 +150,23 @@ const paginatedLeaves = computed(() => {
 // 휴가 신청 상세보기
 const viewDetails = (leave) => {
   selectedLeave.value = leave;  // 선택된 휴가 신청 내역을 상세 모달로 전달
+  // console.log("모달로 넘겨주는 값", leave)
 };
 
 // 상태에 맞는 CSS 클래스 반환
 const statusClass = (status) => {
-  if (status === "Approved") return "status-approved";
-  if (status === "Pending") return "status-pending";
-  if (status === "Rejected") return "status-rejected";
+  if (status === "APPROVED") return "status-approved";
+  if (status === "PENDING") return "status-pending";
+  if (status === "REJECTED") return "status-rejected";
   return "";
 };
 
 // 상태를 한국어로 변환
 const statusTranslation = (status) => {
-  if (status === "Pending") return "대기 중";
-  if (status === "Approved") return "승인됨";
-  if (status === "Rejected") return "거절됨";
+  if (status === "APPROVED") return "승인됨";
+  if (status === "PENDING") return "대기 중";
+  if (status === "REJECTED") return "거절됨";
+  if (status === "CANCELLED") return "취소됨";
   return status; // 기본적으로 그대로 반환
 };
 
