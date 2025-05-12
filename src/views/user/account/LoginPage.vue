@@ -28,7 +28,7 @@
   // 로그인 로직
   const login = async () => {
     try {
-      const response = await axios.post("http://localhost:8088/api/user/login", {
+      const response = await axios.post("http://localhost:8088/api/auth/login", {
         employeeId: number.value, 
         password: password.value,
       }, {

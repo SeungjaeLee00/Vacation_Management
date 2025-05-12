@@ -31,7 +31,7 @@ const sendTemporaryPassword = async () => {
   }
 
   try{
-    await axios.post("http://localhost:8088/api/user/forgot-password", {
+    await axios.post("http://localhost:8088/api/auth/forgot-password", {
       email: email.value,
     });
     alert("임시 비밀번호가 이메일로 전송되었습니다.");

@@ -1,6 +1,9 @@
 <template>
   <div class="mypage-container">
-    <h2 class="mypage-title">{{ userName }} 님, 환영합니다.</h2>
+    <div class="profile">
+      <img :src="profileImageUrl" alt="프로필 이미지" class="profile-image" />
+    </div>
+    <h2 class="mypage-title">{{ userName }} {{positionName}}님, 환영합니다.</h2>
     <div class="divider"></div>
 
     <div class="mypage-vacation-balance">
@@ -23,6 +26,7 @@
     
     <div class="mypage-button-group">
       <button @click="goToMainPage">달력 보기</button>
+      <button @click="goToCheckUser('/change-profile-img')">프로필 사진 바꾸기</button>
       <button @click="goToCheckUser('/change-name')">이름 바꾸기</button>
       <button @click="goToCheckUser('/change-password')">비밀번호 바꾸기</button>
       <button @click="vacations">휴가 신청 내역 조회</button>
@@ -42,6 +46,8 @@ const vacationTypes = [
 ];
 
 const userName = ref(""); 
+const positionName = ref("");
+const profileImageUrl = ref("");
 
 // 잔여 휴가 수
 const vacationBalances = ref([]);
@@ -59,6 +65,8 @@ const fetchUserInfo = async () => {
     });
   //  console.log("response", response)
     userName.value = response.data.name;
+    positionName.value = response.data.positionName;
+    profileImageUrl.value = response.data.profileImageUrl;
   } catch (error) {
     console.error("사용자 정보 가져오기 실패:", error.response ? error.response.data : error.message);
   }
@@ -130,9 +138,15 @@ const vacations = () => {
   max-width: 400px;
   margin: 20px auto;
   text-align: center;
-  
   padding: 20px;
   
+}
+
+.profile-image {
+  width: 150px; 
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .mypage-title {

@@ -31,7 +31,7 @@
 const verifyPassword = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:8088/api/user/check-password", 
+      "http://localhost:8088/api/auth/check-password", 
       { password: password.value },
       {
         withCredentials: true, 

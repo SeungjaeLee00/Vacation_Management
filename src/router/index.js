@@ -8,6 +8,7 @@ import ForgotPassword from "@/views/user/account/ForgotPassword.vue";
 import ResetPassword from "@/views/user/profile/ResetPassword.vue";
 import ChangeName from "@/views/user/profile/ChangeName.vue";
 import CheckUser from "@/views/user/profile/CheckUser.vue";
+import ChangeProfileImg from "@/views/user/profile/ChangeProfileImg.vue";
 import { useAuthStore } from "@/stores/auth";
 import GuestBoot from "@/views/guestbook/GuestbootMain.vue";
 
@@ -23,6 +24,7 @@ const routes = [
   { path: "/check-user", component: CheckUser },
   { path: "/change-password", component: ResetPassword },
   { path: "/change-name", component: ChangeName },
+  { path: "/change-profile-img", component: ChangeProfileImg }
 ];
 
 const router = createRouter({

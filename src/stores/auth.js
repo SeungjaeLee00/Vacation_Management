@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
   
         try {
           await axios.post(
-            'http://localhost:8088/api/user/refresh-token',
+            'http://localhost:8088/api/auth/refresh-token',
             {}, 
             { withCredentials: true }
           );
@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     try{
       await axios.post(
-        'http://localhost:8088/api/user/logout',
+        'http://localhost:8088/api/auth/logout',
         {}, 
         { withCredentials: true }
       );
