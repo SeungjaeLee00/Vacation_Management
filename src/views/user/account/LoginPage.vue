@@ -4,7 +4,8 @@
       <h2>로그인</h2>
       <form @submit.prevent="login">
         <input type="number" placeholder="사번" v-model="number" />
-        <input type="password" placeholder="비밀번호" v-model="password" />
+        <input type="password" placeholder="비밀번호" v-model="password" @keydown="checkCapsLock"/>
+        <span v-if="capsLockActive" class="caps-lock-warning">Caps Lock이 켜져 있습니다.</span>
         <button type="submit">로그인</button>
       </form>
       <div class="link-to">
@@ -24,6 +25,12 @@
   const router = useRouter();
   
   const isLoggedIn = ref(false); 
+  const capsLockActive = ref(false);
+
+  const checkCapsLock = (event) => {
+    const isCapsLock = event.getModifierState("CapsLock");
+    capsLockActive.value = isCapsLock;
+  };
   
   // 로그인 로직
   const login = async () => {
@@ -84,6 +91,12 @@
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+  }
+
+  .caps-lock-warning {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
   }
   
   .link-to {

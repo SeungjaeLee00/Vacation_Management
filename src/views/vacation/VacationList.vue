@@ -113,9 +113,8 @@ onMounted(() => {
 
 // 필터링된 휴가 신청 내역 반환
 const filteredLeaves = computed(() => {
-  // return leaves.value.filter(leave => {
     let filteredData = leaves.value.filter(leave => {
-    const matchesStatus = selectedStatus.value === "" || leave.status === selectedStatus.value;
+    const matchesStatus = (selectedStatus.value === "" || leave.status === selectedStatus.value) && leave.status !== "DELETED";
     
     return matchesStatus;
   });
