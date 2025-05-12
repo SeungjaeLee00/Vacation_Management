@@ -7,7 +7,7 @@
     <nav :class="{ 'nav-open': isNavOpen }">
       <ul>
         <li><button @click="goToVacationForm">휴가 신청</button></li>
-        <li><button @click="goToVacaLog">내 부서 휴가 보기</button></li>
+        <!-- <li><button @click="goToGuestbook">방문록</button></li> -->
         <li><button @click="goToMyPage">마이페이지</button></li>
         <li><button @click="handleAuth">{{ isLoggedIn  ? "로그아웃" : "로그인" }}</button></li>
       </ul>
@@ -50,9 +50,9 @@ const goToVacationForm = () => {
   router.push("/vacation-form");
 };
 
-const goToVacaLog = () => {
-  router.push("/department-vacations");
-};
+// const goToGuestbook = () => {
+//   router.push("/department-guestbook");
+// }
 
 const goToMainPage = () => {
   router.push("/home");

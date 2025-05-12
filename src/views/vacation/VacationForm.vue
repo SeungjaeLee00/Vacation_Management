@@ -139,6 +139,7 @@ const submitVacation = async () => {
     router.push("/home");
   } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
+        // console.log("error.response.data.message", error.response.data.message)
       alert(error.response.data.message);
     } else {
       alert('알 수 없는 오류가 발생했습니다.');

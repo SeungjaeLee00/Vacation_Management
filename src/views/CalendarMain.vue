@@ -11,6 +11,12 @@
       :selectedEvents="vacationData" 
       @close="closeModal" 
     />
+
+    <!-- <div class="show-vacations">
+      <button @click="showMyVacation">내 휴가 보기</button>
+      <button @click="showDepartmentVacation">내 부서 휴가 보기</button>
+    </div> -->
+
   </div>
 </template>
 
@@ -30,9 +36,21 @@ const selectedEvents = ref([]);
 const showModal = ref(false);
 const vacationData = ref([]);
 const holidayDates = ref([]);
+const viewMyDepartment = ref(false);
 // const router = useRouter();
 
 const store = useNotificationStore();
+
+// 버튼 클릭 시 핸들러
+const showMyVacation = () => {
+  viewMyDepartment.value = false;
+  calendarRef.value.getApi().refetchEvents(); 
+};
+
+const showDepartmentVacation = () => {
+  viewMyDepartment.value = true;
+  calendarRef.value.getApi().refetchEvents(); 
+};
 
 const calendarOptions = ref({
   plugins: [dayGridPlugin, interactionPlugin],
@@ -85,63 +103,87 @@ const calendarOptions = ref({
         });
       });
 
-    // 내 휴가 내역 API
-    const vacationPromise = fetch("http://localhost:8088/api/vacations/my-vacations", {
-      // fetch는 기본 get임
-      credentials: 'include',
+    // 휴가 내역 API
+    const vacationPromise = fetch(
+      viewMyDepartment.value
+      ? "http://localhost:8088/api/vacations/my-department"
+      : "http://localhost:8088/api/vacations/my-vacations",
+      {
+        credentials: "include",
+      }
+    )
+    .then((res) => {
+      if (!res.ok) throw new Error("휴가 내역 조회 실패");
+      return res.json();
     })
-      .then((res) => {
-        if (!res.ok) throw new Error("내 휴가 내역 조회 실패");
-        return res.json();
-      })
-      .then((data) => {
-      const updatedVacations = store.getUpdatedVacations(data);
-      // 상태 변경 알림 처리
+    .then((responseData) => {
+      let vacationList = [];
+
+      // 부서 휴가 (응답에 success/message/data 포함)
+      if (viewMyDepartment.value) {
+        if (!responseData.success || !Array.isArray(responseData.data)) {
+          throw new Error("부서 휴가 데이터 오류");
+        }
+        vacationList = responseData.data;
+
+        // fullcalendar용 이벤트 형태로 매핑
+        return vacationList.map((vacation) => {
+          const endDateObj = new Date(vacation.end_at);
+          endDateObj.setDate(endDateObj.getDate() + 1);
+
+          return {
+            title: `${vacation.userName} 휴가`,
+            start: vacation.start_at,
+            end: endDateObj.toISOString().slice(0, 10),
+            allDay: true,
+            backgroundColor: "#4B89DC",
+            textColor: "white",
+            borderColor: "#5cb536",
+          };
+        });
+      }
+
+      // 내 휴가 (응답이 배열 형태)
+      vacationList = responseData;
+
+      const updatedVacations = store.getUpdatedVacations(vacationList);
       updatedVacations.forEach(showVacationToast);
+      vacationData.value = vacationList;
 
-      vacationData.value = data;
-
-      // 캘린더에선 Rejected, Cancelled 휴가 안보이게 필터링
-      const filteredDataForCalendar = data.filter(
-        (vacation) => vacation.status !== "REJECTED" && vacation.status !== "CANCELLED"
+      const filtered = vacationList.filter(
+        (v) => v.status !== "REJECTED" && v.status !== "CANCELLED"
       );
 
-      return filteredDataForCalendar.map((vacation) => {
-        const startDate = vacation.startAt;
+      return filtered.map((vacation) => {
         const endDateObj = new Date(vacation.endAt);
         endDateObj.setDate(endDateObj.getDate() + 1);
-        const endDateStr = endDateObj.toISOString().slice(0, 10);
 
-        const startDateObj = new Date(startDate);
+        const startDateObj = new Date(vacation.startAt);
         const isCurrentMonth =
           startDateObj.getFullYear() === currentYear &&
           startDateObj.getMonth() === currentMonth;
 
-        let backgroundColor = "";
-        let textColor = "white";
-        let borderColor = "";
+        let backgroundColor = "#6bd13f";
+        let textColor = "#1a4209";
+        let borderColor = "#5cb536";
 
         if (vacation.status === "PENDING") {
           backgroundColor = isCurrentMonth ? "#f7ed5c" : "#fcfad9";
           textColor = "#5c5121";
           borderColor = isCurrentMonth ? "#ccc44e" : "#d1c177";
-        } else if (vacation.status === "APPROVED") {
-          backgroundColor = isCurrentMonth ? "#6bd13f" : "#bbe0ab";
-          textColor = "#1a4209";
-          borderColor = isCurrentMonth ? "#5cb536" : "#7aab65";
-        } 
+        }
 
         return {
           title: "휴가",
-          start: startDate,
-          end: endDateStr,
+          start: vacation.startAt,
+          end: endDateObj.toISOString().slice(0, 10),
           allDay: true,
           backgroundColor,
           textColor,
           borderColor,
         };
+      });
     });
-  });
 
     // 두 Promise 모두 완료 후 합쳐서 successCallback 호출
     Promise.all([holidayPromise, vacationPromise])
@@ -175,10 +217,15 @@ const calendarOptions = ref({
   dayMaxEvents: 2,
   dateClick: (info) => openEventModal(info.dateStr),
 
-  headerToolbar: {
-    left: "prev,next today",
-    center: "title",
-    right: "dayGridMonth,dayGridWeek",
+  customButtons: {
+    myVacationButton: {
+      text: "내 휴가 보기",
+      click: showMyVacation,
+    },
+    myDepartmentButton: {
+      text: "내 부서 휴가 보기",
+      click: showDepartmentVacation,
+    },
   },
 
   windowResize: () => {
@@ -186,6 +233,7 @@ const calendarOptions = ref({
   },
 });
 
+// 화면 작아질 때
 const adjustCalendarSize = () => {
   const windowWidth = window.innerWidth;
 
@@ -205,27 +253,12 @@ const adjustCalendarSize = () => {
     calendarOptions.value.headerToolbar = {
       left: "prev,next today",
       center: "title",
-      right: "dayGridMonth,dayGridWeek",
+      right: "myVacationButton,myDepartmentButton dayGridMonth,dayGridWeek",
     };
   }
 };
 
 // console.log("vacationData", vacationData)
-
-onMounted(() => {
-  if (calendarRef.value) {
-    adjustCalendarSize();
-    calendarRef.value.getApi();
-  }
-  window.addEventListener("resize", adjustCalendarSize);
-});
-
-onUnmounted(() => {
-  if (calendarRef.value) {
-    calendarRef.value.getApi().destroy();
-  }
-  window.removeEventListener("resize", adjustCalendarSize);
-});
 
 const openEventModal = (date) => {
   selectedDate.value = date;
@@ -246,56 +279,53 @@ const openEventModal = (date) => {
 const closeModal = () => {
   showModal.value = false;
 };
+
+onMounted(() => {
+  if (calendarRef.value) {
+    adjustCalendarSize();
+    calendarRef.value.getApi();
+  }
+  window.addEventListener("resize", adjustCalendarSize);
+});
+
+onUnmounted(() => {
+  if (calendarRef.value) {
+    calendarRef.value.getApi().destroy();
+  }
+  window.removeEventListener("resize", adjustCalendarSize);
+});
 </script>
 
 <style scoped>
-  .calendar-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    margin-top: 20px;
-  }
-
-  .calendar-container {
-    width: 90vw;
-    max-width: 1000px;
-    padding: 10px;
-    position: relative;
-    z-index: 1;
-  }
-
-  :deep(.sunday .fc-daygrid-day-number),
-  :deep(.holiday .fc-daygrid-day-number) {
-  color: red !important;
-  }
-
-  /* FullCalendar 크기 줄이기 */
-  :deep(.fc) {
-    font-size: 15px;
-  }
-
-  @media(max-width: 768px){
-    :deep(.fc) {
-      font-size: 11px;
-    }
-  }
-
-/* .vacation-button {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  padding: 12px 18px;
-  font-size: 16px;
-  background-color: #2699e6;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-top: 20px;
 }
 
-.vacation-button:hover {
-  background-color: #0056b3;
-} */
+.calendar-container {
+  width: 90vw;
+  max-width: 1000px;
+  padding: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+:deep(.sunday .fc-daygrid-day-number),
+:deep(.holiday .fc-daygrid-day-number) {
+color: red !important;
+}
+
+/* FullCalendar 크기 줄이기 */
+:deep(.fc) {
+  font-size: 15px;
+}
+
+@media(max-width: 768px){
+  :deep(.fc) {
+    font-size: 11px;
+  }
+}
 </style>
