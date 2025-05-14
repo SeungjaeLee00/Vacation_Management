@@ -4,6 +4,25 @@
     <form @submit.prevent="submitVacation">
       <label for="date-picker">휴가 날짜</label>
       <input id="date-picker" type="text" placeholder="날짜를 선택하세요" required />
+      
+      <!-- 결재자 검색 필드 -->
+      <label>결재자 선택</label>
+       <div class="flex items-center gap-2">
+          <button type="button" @click="approverModalVisible = true">결재자 선택</button>
+        </div>
+
+       <!-- 선택된 결재자 표시 -->
+        <div v-if="selectedApprover" class="selected-approver mt-2">
+          <span>{{ selectedApprover.name }} ({{ selectedApprover.positionName }})</span>
+          <button type="button" @click="removeApprover">X</button>
+        </div>
+
+        <!-- 모달 컴포넌트 -->
+        <SelectApproverModal
+          v-if="approverModalVisible"
+          v-model="approverModalVisible"
+          @select="handleApproverSelect"
+        />
 
       <label>휴가 종류 및 사용 일수</label>
       <div v-for="type in vacationTypes" :key="type" class="vacation-type-row">
@@ -51,6 +70,7 @@ import dayjs from 'dayjs';
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
+import SelectApproverModal from "@/components/modals/SelectApproverModal.vue";
 
 const router = useRouter();
 const vacationDate = ref([]);
@@ -66,6 +86,19 @@ const usedDaysByType = ref({
   "포상휴가": 0,
 });
 const vacationBalances = ref([]);  // 잔여 휴가 수량을 저장할 변수
+const selectedApprover = ref(null);  // 선택된 결제자
+const approverModalVisible = ref(false);
+
+
+// 선택된 결재자 삭제
+const removeApprover = () => {
+  selectedApprover.value = null;
+};
+
+// 모달에서 결재자 선택 시 처리
+const handleApproverSelect = (approver) => {
+  selectedApprover.value = approver;
+};
 
 // 휴가 잔여 수량 가져오기
 const fetchVacationBalances = async () => {
@@ -80,7 +113,6 @@ const fetchVacationBalances = async () => {
   }
 };
 
-
 // 휴가 신청
 const submitVacation = async () => {
   if (vacationDate.value.length === 0) {
@@ -89,6 +121,10 @@ const submitVacation = async () => {
   }
   if (selectedVacationTypes.value.length === 0) {
     alert("휴가 종류를 최소 1개 선택해주세요.");
+    return;
+  }
+  if (!selectedApprover.value) {
+    alert("결재자를 선택해주세요.");
     return;
   }
 
@@ -129,6 +165,8 @@ const submitVacation = async () => {
       endAt,
       usedVacations,
       reason: reason.value,
+      approverEmployeeId: selectedApprover.value.employeeId
+
     };
     
     // 휴가 신청 API
@@ -170,6 +208,7 @@ onMounted(() => {
     },
   });
   fetchVacationBalances();
+  // fetchApprovers();
 });
 
 // watch로 selectedVacationTypes 감시하기~
