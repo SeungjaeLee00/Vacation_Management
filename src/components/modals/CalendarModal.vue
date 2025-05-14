@@ -45,7 +45,7 @@ const filteredEvents = computed(() => {
     const end = new Date(event.endAt);
     
     // rejected 상태인 휴가는 모달 안 보이게
-    return event.status !== 'Rejected' && clickedDate >= start && clickedDate <= end;
+    return event.status !== 'REJECTED' && event.status !== 'CANCELLED' && event.status !== 'DELETED' && clickedDate >= start && clickedDate <= end;
   });
 });
 

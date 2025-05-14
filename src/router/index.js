@@ -11,6 +11,7 @@ import CheckUser from "@/views/user/profile/CheckUser.vue";
 import ChangeProfileImg from "@/views/user/profile/ChangeProfileImg.vue";
 import { useAuthStore } from "@/stores/auth";
 import GuestBoot from "@/views/guestbook/GuestbootMain.vue";
+// import NotificationPage from "@/views/NotificationPage.vue"
 
 const routes = [
   { path: "/", component: LoginPage },
@@ -24,7 +25,8 @@ const routes = [
   { path: "/check-user", component: CheckUser },
   { path: "/change-password", component: ResetPassword },
   { path: "/change-name", component: ChangeName },
-  { path: "/change-profile-img", component: ChangeProfileImg }
+  { path: "/change-profile-img", component: ChangeProfileImg },
+  // { path: "/notifications", component: NotificationPage }
 ];
 
 const router = createRouter({

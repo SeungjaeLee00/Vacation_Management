@@ -8,8 +8,8 @@
     <input type="file" @change="handleFileChange" accept="image/*" />
 
     <div class="button-group">
-      <button @click="submitProfileImage" :disabled="!selectedFile">변경</button>
-      <button @click="goToMyPage">취소</button>
+      <button @click="submitProfileImage" :disabled="!selectedFile" class="submit-btn">변경</button>
+      <button @click="goToMyPage" class="cancel-btn">취소</button>
     </div>
   </div>
 </template>
@@ -107,25 +107,25 @@ button {
   color: white;
 }
 
-button:disabled {
+.submit-btn {
   background-color: #2699e6;
 }
 
-button:hover {
+.submit-btn:hover {
   background-color: #2563eb;
 }
 
-button:nth-of-type(2) {
+.cancel-btn {
   background-color: #ccc;
 }
 
-button:nth-of-type(2):hover {
+.cancel-btn:hover {
   background-color: #999;
 }
 
 .profile-img-preview {
-  width: 150px;
-  height: 150px;
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 50%;
   margin-top: 20px;

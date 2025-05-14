@@ -11,12 +11,6 @@
       :selectedEvents="vacationData" 
       @close="closeModal" 
     />
-
-    <!-- <div class="show-vacations">
-      <button @click="showMyVacation">내 휴가 보기</button>
-      <button @click="showDepartmentVacation">내 부서 휴가 보기</button>
-    </div> -->
-
   </div>
 </template>
 
@@ -27,8 +21,6 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
 import CalendarModal from "@/components/modals/CalendarModal.vue";
-import { useNotificationStore } from '@/stores/notificationStore';
-import { showVacationToast } from "@/utils/showVacationToast";
 
 const calendarRef = ref(null);
 const selectedDate = ref("");
@@ -37,9 +29,6 @@ const showModal = ref(false);
 const vacationData = ref([]);
 const holidayDates = ref([]);
 const viewMyDepartment = ref(false);
-// const router = useRouter();
-
-const store = useNotificationStore();
 
 // 버튼 클릭 시 핸들러
 const showMyVacation = () => {
@@ -146,12 +135,8 @@ const calendarOptions = ref({
       // 내 휴가 (응답이 배열 형태)
       vacationList = responseData;
 
-      const updatedVacations = store.getUpdatedVacations(vacationList);
-      updatedVacations.forEach(showVacationToast);
-      vacationData.value = vacationList;
-
       const filtered = vacationList.filter(
-        (v) => v.status !== "REJECTED" && v.status !== "CANCELLED"
+        (v) => v.status !== "REJECTED" && v.status !== "CANCELLED" && v.status !== "DELETED"
       );
 
       return filtered.map((vacation) => {
@@ -215,7 +200,14 @@ const calendarOptions = ref({
   height: 650,
   contentHeight: 450,
   dayMaxEvents: 2,
-  dateClick: (info) => openEventModal(info.dateStr),
+  dateClick: (info) => {
+  if (viewMyDepartment.value) {
+    // 부서 휴가 보기 모드에서는 모달 안 열고
+    return;
+  }
+  openEventModal(info.dateStr);
+},
+
 
   customButtons: {
     myVacationButton: {

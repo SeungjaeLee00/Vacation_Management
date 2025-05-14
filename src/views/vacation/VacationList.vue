@@ -51,7 +51,6 @@
 
             <td>{{ leave.startAt }}</td>
             <td>{{ leave.endAt }}</td>
-            <!-- <td :class="statusClass(leave.status)">{{ leave.status }}</td> -->
             <td :class="statusClass(leave.status)"> {{ statusTranslation(leave.status) }} </td>
             <td class="vacation-list-text-center">
               <button @click="viewDetails(leave)" class="vacation-list-detail-btn">보기</button>

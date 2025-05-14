@@ -38,8 +38,8 @@
 import { useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useNotificationStore } from '@/stores/notificationStore';
-import { showVacationToast } from "@/utils/showVacationToast";
+// import { useNotificationStore } from '@/stores/notificationStore';
+// import { showVacationToast } from "@/utils/showVacationToast";
 
 const vacationTypes = [
   "연차", "하계휴가", "대체휴가", "포상휴가"
@@ -55,7 +55,7 @@ const totalRemainingLeaves = ref(0); // 총 잔여 일수
 const remainingLeavesMap = ref({});  // 휴가 종류별 남은 일수
 
 const router = useRouter();
-const store = useNotificationStore();
+// const store = useNotificationStore();
 
 // 사용자 정보 가져오기 함수
 const fetchUserInfo = async () => {
@@ -101,15 +101,15 @@ const fetchRemainingLeaves = async () => {
 
 // 내 휴가 내역 API
 const fetchMyVacations = async () => {
-  const response = await axios.get("http://localhost:8088/api/vacations/my-vacations", {
+  await axios.get("http://localhost:8088/api/vacations/my-vacations", {
     withCredentials: true,
   });
 
-  const vacations = response.data;
+  // const vacations = response.data;
   // console.log("vacations", vacations);
 
-  const changed = store.getUpdatedVacations(vacations);
-  changed.forEach(v => showVacationToast(v));
+  // const changed = store.getUpdatedVacations(vacations);
+  // changed.forEach(v => showVacationToast(v));
 };
 
 onMounted(() => {
@@ -143,8 +143,8 @@ const vacations = () => {
 }
 
 .profile-image {
-  width: 150px; 
-  height: 150px;
+  width: 200px; 
+  height: 200px;
   object-fit: cover;
   border-radius: 50%;
 }

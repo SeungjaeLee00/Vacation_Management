@@ -60,6 +60,7 @@ export const useAuthStore = defineStore('auth', () => {
         { withCredentials: true }
       );
       console.log("로그아웃 성공");
+      sessionStorage.clear();
       // await checkLoginStatus();
     } catch (error) {
       console.log("로그아웃 실패, ", error);

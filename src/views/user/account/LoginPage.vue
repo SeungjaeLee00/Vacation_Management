@@ -20,7 +20,8 @@
   import axios from 'axios';
   import { useRouter } from 'vue-router';
   
-  const number = ref('');
+  
+  const number = ref('');  // 사번번
   const password = ref('');
   const router = useRouter();
   
@@ -46,6 +47,8 @@
       if (response.status === 200) {
         isLoggedIn.value = true;
         alert("로그인 성공")
+        sessionStorage.setItem('userId', number.value);
+
         router.push('/home');
       } else {
           alert('로그인 실패');

@@ -9,6 +9,7 @@
         <li><button @click="goToVacationForm">휴가 신청</button></li>
         <!-- <li><button @click="goToGuestbook">방문록</button></li> -->
         <li><button @click="goToMyPage">마이페이지</button></li>
+        <li><button @click="$emit('openSidebar')">알림</button></li>
         <li><button @click="handleAuth">{{ isLoggedIn  ? "로그아웃" : "로그인" }}</button></li>
       </ul>
       <button class="menu-toggle" @click="toggleNav">  <!-- 햄버거 헤더 -->
@@ -61,7 +62,6 @@ const goToMainPage = () => {
 const goToMyPage = () => {
   router.push("/mypage");
 };
-
 
 const toggleNav = () => {
   isNavOpen.value = !isNavOpen.value; 
