@@ -6,23 +6,25 @@
       <input id="date-picker" type="text" placeholder="날짜를 선택하세요" required />
       
       <!-- 결재자 검색 필드 -->
-      <label>결재자 선택</label>
-       <div class="flex items-center gap-2">
+       <div>
+        <label>결재자 선택</label>
+        <div class="selectApprover">
           <button type="button" @click="approverModalVisible = true">결재자 선택</button>
         </div>
 
-       <!-- 선택된 결재자 표시 -->
-        <div v-if="selectedApprover" class="selected-approver mt-2">
+        <!-- 선택된 결재자 표시 -->
+        <div v-if="selectedApprover" class="selectedApprover">
           <span>{{ selectedApprover.name }} ({{ selectedApprover.positionName }})</span>
           <button type="button" @click="removeApprover">X</button>
         </div>
+      </div>
 
-        <!-- 모달 컴포넌트 -->
-        <SelectApproverModal
-          v-if="approverModalVisible"
-          v-model="approverModalVisible"
-          @select="handleApproverSelect"
-        />
+      <!-- 모달 컴포넌트 -->
+      <SelectApproverModal
+        v-if="approverModalVisible"
+        v-model="approverModalVisible"
+        @select="handleApproverSelect"
+       />
 
       <label>휴가 종류 및 사용 일수</label>
       <div v-for="type in vacationTypes" :key="type" class="vacation-type-row">
@@ -166,7 +168,6 @@ const submitVacation = async () => {
       usedVacations,
       reason: reason.value,
       approverEmployeeId: selectedApprover.value.employeeId
-
     };
     
     // 휴가 신청 API
@@ -177,7 +178,7 @@ const submitVacation = async () => {
     router.push("/home");
   } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
-        // console.log("error.response.data.message", error.response.data.message)
+        console.log("error.response.data.message", error.response.data.message)
       alert(error.response.data.message);
     } else {
       alert('알 수 없는 오류가 발생했습니다.');
@@ -244,7 +245,7 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
-  gap:10px;
+  gap:15px;
 }
 
 label {
@@ -259,6 +260,71 @@ select {
   border-radius: 5px;
   /* font-size: 14px; */
   cursor: pointer;
+}
+
+.approver {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.approver label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.selectApprover button {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.selectApprover button:hover {
+  background-color: #e2e2e2;
+}
+
+.selectedApprover {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #f7f7f7; 
+  border-radius: 12px; 
+  max-width: 400px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
+}
+
+.selectedApprover span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.selectedApprover button {
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #ff4d4f;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.selectedApprover button:hover {
+  background-color: #e24e50; 
 }
 
 

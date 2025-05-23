@@ -1,4 +1,6 @@
-<template>
+<template>알림</template>
+
+<!-- <template>
   <div class="notifications-sidebar">
     <div class="sidebar-header">
       <h2>알림</h2>
@@ -84,4 +86,4 @@ button {
   border: none;
   cursor: pointer;
 }
-</style>
+</style> -->

@@ -10,7 +10,7 @@ import ChangeName from "@/views/user/profile/ChangeName.vue";
 import CheckUser from "@/views/user/profile/CheckUser.vue";
 import ChangeProfileImg from "@/views/user/profile/ChangeProfileImg.vue";
 import { useAuthStore } from "@/stores/auth";
-import GuestBoot from "@/views/guestbook/GuestbootMain.vue";
+// import { GuestBoot } from "@/views/guestbook/GuestbootMain.vue";
 // import NotificationPage from "@/views/NotificationPage.vue"
 
 const routes = [
@@ -18,7 +18,7 @@ const routes = [
   { path: "/login", component: LoginPage },
   { path: "/home", component: CalendarMain },
   { path: "/mypage", component: MyPage },
-  { path: "/department-guestbook", component:GuestBoot},
+  // { path: "/department-guestbook", component:GuestBoot},
   { path: "/vacations", component: VacationList },
   { path: "/vacation-form", component: VacationForm },
   { path: "/find-password", component: ForgotPassword },

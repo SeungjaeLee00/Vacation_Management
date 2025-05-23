@@ -4,8 +4,8 @@
       <h3>{{ formattedDate }}</h3>
 
       <ul v-if="filteredEvents.length > 0">
-        <li v-for="(event, index) in filteredEvents" :key="index">
-          <strong>휴가 사유:</strong> {{ event.reason }}
+        <li v-for="(event, index) in filteredEvents" :key="index" style="margin-bottom: 15px;">
+          <!-- <p><strong>휴가 상태:</strong> {{ event.status }}</p> -->
           <ul>
             <li class="cm-modal-content-details" v-for="(used, idx) in event.usedVacations" :key="idx">
               {{ used.vacationTypeName }}: {{ used.usedDays.toFixed(2) }}일
@@ -14,7 +14,6 @@
               </template>
             </li>
           </ul>
-          <!-- ({{ event.startAt }} ~ {{ event.endAt }}) -->
         </li>
       </ul>
 
@@ -24,6 +23,7 @@
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { computed, defineProps } from 'vue';

@@ -4,12 +4,12 @@
       <img :src="headerLogo" :class="logoClass" alt="로고" @click="goToMainPage" />
       <h1 class="title" @click="goToMainPage">휴가 계획표</h1>
     </div>
-    <nav :class="{ 'nav-open': isNavOpen }">
+    <nav ref="menuRef" :class="{ 'nav-open': isNavOpen }">
       <ul>
         <li><button @click="goToVacationForm">휴가 신청</button></li>
         <!-- <li><button @click="goToGuestbook">방문록</button></li> -->
         <li><button @click="goToMyPage">마이페이지</button></li>
-        <li><button @click="$emit('openSidebar')">알림</button></li>
+        <!-- <li><button @click="$emit('openSidebar')">알림</button></li> -->
         <li><button @click="handleAuth">{{ isLoggedIn  ? "로그아웃" : "로그인" }}</button></li>
       </ul>
       <button class="menu-toggle" @click="toggleNav">  <!-- 햄버거 헤더 -->
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 
@@ -35,6 +35,8 @@ const auth = useAuthStore();
 const isLoggedIn = computed(() => auth.isLoggedIn);
 
 const isNavOpen = ref(false);  // 메뉴 토글 상태
+const menuRef = ref(null);  // 메늎 dom 참조용
+
 const headerLogo = ref(logoLong);
 const logoClass = ref("header-logo-long")
 
@@ -67,6 +69,13 @@ const toggleNav = () => {
   isNavOpen.value = !isNavOpen.value; 
 };
 
+const handleClickOutside = (event) => {
+  if (menuRef.value && !menuRef.value.contains(event.target)) {
+    isNavOpen.value = false;
+  }
+};
+
+
 // 화면 크기 감지하여 로고 변경
 const updateLogo = () => {
   if (window.innerWidth <= 768) {
@@ -80,7 +89,12 @@ const updateLogo = () => {
 
 onMounted(() => {
   updateLogo();
+  document.addEventListener('click', handleClickOutside);
   window.addEventListener("resize", updateLogo);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 

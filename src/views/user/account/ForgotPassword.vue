@@ -9,9 +9,13 @@
       </div>
 
       <div class="button-group">
-        <button class="btn send" @click="sendTemporaryPassword">임시 비밀번호 전송</button>
-        <button class="btn cancel" @click="goToLoginPage">취소</button>
+        <button class="btn send" @click="sendTemporaryPassword" :disabled="loading">
+          {{ loading ? "전송 중..." : "임시 비밀번호 전송" }}
+        </button>
+        <button class="btn cancel" @click="goToLoginPage" :disabled="loading">취소</button>
       </div>
+
+       <div v-if="loading" class="spinner"></div>
     </div>
   </div>
 </template>
@@ -22,6 +26,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 const email = ref("");
+const loading = ref(false); 
 const router = useRouter();
 
 const sendTemporaryPassword = async () => {
@@ -29,6 +34,8 @@ const sendTemporaryPassword = async () => {
     alert("이메일을 입력해주세요.");
     return;
   }
+
+  loading.value = true; 
 
   try{
     await axios.post("http://localhost:8088/api/auth/forgot-password", {
@@ -39,6 +46,8 @@ const sendTemporaryPassword = async () => {
   } catch (error) {
     console.error(error);
     alert("이메일 전송에 실패했습니다. 이메일을 다시 확인해주세요.")
+  } finally {
+    loading.value = false; 
   }
 };
 
@@ -118,6 +127,20 @@ const goToLoginPage = () => {
 
 .cancel:hover {
   background-color: #999;
+}
+
+.spinner {
+  margin: 20px auto 0;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #2699e6;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
 

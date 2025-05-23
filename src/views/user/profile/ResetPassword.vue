@@ -57,7 +57,8 @@ const submitChangePassword = async () => {
       withCredentials: true,
     });
 
-    alert(response.data);
+    console.log(response);
+    alert(response.data.message);
     router.push("/mypage");
   } catch (error) {
     console.error("비밀번호 변경 실패:", error.response ? error.response.data : error.message);

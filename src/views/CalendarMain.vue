@@ -5,12 +5,12 @@
       <FullCalendar ref="calendarRef" :options="calendarOptions" />
     </div>
 
-    <CalendarModal  
+    <!-- <CalendarModal  
       v-if="showModal" 
       :selectedDate="selectedDate" 
-      :selectedEvents="vacationData" 
+      :selectedEvents="modalEvents" 
       @close="closeModal" 
-    />
+    /> -->
   </div>
 </template>
 
@@ -20,12 +20,12 @@ import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import koLocale from "@fullcalendar/core/locales/ko";
-import CalendarModal from "@/components/modals/CalendarModal.vue";
+// import CalendarModal from "@/components/modals/CalendarModal.vue";
 
 const calendarRef = ref(null);
-const selectedDate = ref("");
-const selectedEvents = ref([]);
-const showModal = ref(false);
+// const selectedDate = ref("");
+// const selectedEvents = ref([]);
+// const showModal = ref(false);
 const vacationData = ref([]);
 const holidayDates = ref([]);
 const viewMyDepartment = ref(false);
@@ -106,32 +106,39 @@ const calendarOptions = ref({
       return res.json();
     })
     .then((responseData) => {
-      let vacationList = [];
+    let vacationList = [];
 
-      // 부서 휴가 (응답에 success/message/data 포함)
-      if (viewMyDepartment.value) {
-        if (!responseData.success || !Array.isArray(responseData.data)) {
-          throw new Error("부서 휴가 데이터 오류");
-        }
-        vacationList = responseData.data;
-
-        // fullcalendar용 이벤트 형태로 매핑
-        return vacationList.map((vacation) => {
-          const endDateObj = new Date(vacation.end_at);
-          endDateObj.setDate(endDateObj.getDate() + 1);
-
-          return {
-            title: `${vacation.userName} 휴가`,
-            start: vacation.start_at,
-            end: endDateObj.toISOString().slice(0, 10),
-            allDay: true,
-            backgroundColor: "#4B89DC",
-            textColor: "white",
-            borderColor: "#5cb536",
-          };
-        });
+    if (viewMyDepartment.value) {
+      if (!responseData.success || !Array.isArray(responseData.data)) {
+        throw new Error("부서 휴가 데이터 오류");
       }
 
+      // 중복 제거: vacationId 기준으로 중복 제거
+      const seenIds = new Set();
+      vacationList = responseData.data.filter((vacation) => {
+        if (seenIds.has(vacation.vacationId)) {
+          return false;
+        }
+        seenIds.add(vacation.vacationId);
+        return true;
+      });
+
+      // fullcalendar용 이벤트 형태로 매핑
+      return vacationList.map((vacation) => {
+        const endDateObj = new Date(vacation.end_at);
+        endDateObj.setDate(endDateObj.getDate() + 1);
+
+        return {
+          title: `${vacation.userName} 휴가`,
+          start: vacation.start_at,
+          end: endDateObj.toISOString().slice(0, 10),
+          allDay: true,
+          backgroundColor: "#4B89DC",
+          textColor: "white",
+          borderColor: "#5cb536",
+        };
+      });
+    }
       // 내 휴가 (응답이 배열 형태)
       vacationList = responseData;
 
@@ -173,6 +180,7 @@ const calendarOptions = ref({
     // 두 Promise 모두 완료 후 합쳐서 successCallback 호출
     Promise.all([holidayPromise, vacationPromise])
       .then(([holidayEvents, vacationEvents]) => {
+        vacationData.value = vacationEvents.filter((e) => e.title === "휴가");
         const combinedEvents = [...vacationEvents, ...holidayEvents];
         successCallback(combinedEvents);
       })
@@ -200,13 +208,13 @@ const calendarOptions = ref({
   height: 650,
   contentHeight: 450,
   dayMaxEvents: 2,
-  dateClick: (info) => {
-  if (viewMyDepartment.value) {
-    // 부서 휴가 보기 모드에서는 모달 안 열고
-    return;
-  }
-  openEventModal(info.dateStr);
-},
+//   dateClick: (info) => {
+//   if (viewMyDepartment.value) {
+//     // 내 부서 휴가 보기 모드에서는 모달 안 열고
+//     return;
+//   }
+//   openEventModal(info.dateStr);
+// },
 
 
   customButtons: {
@@ -224,6 +232,24 @@ const calendarOptions = ref({
     adjustCalendarSize();
   },
 });
+
+// const modalEvents = computed(() =>
+//   vacationData.value.map(item => ({
+//     startAt: item.start,
+//     endAt: item.end,
+//     reason: '휴가', // 혹은 item.title로 대체 가능
+//     usedVacations: [
+//       {
+//         vacationTypeName: item.title || '휴가',
+//         usedDays: 1,
+//         startTime: '',  // 필요한 경우 넣기
+//         endTime: '',    // 필요한 경우 넣기
+//       }
+//     ],
+//     status: 'APPROVED', // 일단 승인된 것으로 간주
+//   }))
+// );
+
 
 // 화면 작아질 때
 const adjustCalendarSize = () => {
@@ -250,27 +276,27 @@ const adjustCalendarSize = () => {
   }
 };
 
-// console.log("vacationData", vacationData)
+ // console.log("vacationData", vacationData)
 
-const openEventModal = (date) => {
-  selectedDate.value = date;
+// const openEventModal = (date) => {
+//   selectedDate.value = date;
 
-  // vacationData.value에서 필터링
-  selectedEvents.value = vacationData.value.filter((vacation) => {
-    const start = new Date(vacation.startAt);
-    const end = new Date(vacation.endAt);
-    const clickedDate = new Date(date);
+//   // vacationData.value에서 필터링
+//   selectedEvents.value = vacationData.value.filter((vacation) => {
+//     const start = new Date(vacation.startAt);
+//     const end = new Date(vacation.endAt);
+//     const clickedDate = new Date(date);
 
-    // end 날짜 inclusive
-    return clickedDate >= start && clickedDate <= end;
-  });
+//     // end 날짜 inclusive
+//     return clickedDate >= start && clickedDate <= end;
+//   });
 
-  showModal.value = true;
-};
+//   showModal.value = true;
+// };
 
-const closeModal = () => {
-  showModal.value = false;
-};
+// const closeModal = () => {
+//   showModal.value = false;
+// };
 
 onMounted(() => {
   if (calendarRef.value) {

@@ -30,11 +30,61 @@ const goToMyPage = () => {
 // 파일 선택 시 미리보기 이미지 생성
 const handleFileChange = (event) => {
   const file = event.target.files[0];
+  if (!file) return;
+
   selectedFile.value = file;
-  if (file) {
-    imageUrl.value = URL.createObjectURL(file); 
-  }
+  imageUrl.value = URL.createObjectURL(file);
 };
+
+// const handleFileChange = (event) => {
+//   const file = event.target.files[0];
+//   if (!file) return;
+
+//   const img = new Image();
+//   const reader = new FileReader();
+
+//   reader.onload = (e) => {
+//     img.src = e.target.result;
+//   };
+
+//   img.onload = () => {
+//     const maxSize = 800; // 최대 800x800 크기로 리사이징
+//     let width = img.width;
+//     let height = img.height;
+
+//     if (width > height) {
+//       if (width > maxSize) {
+//         height = Math.round((height * maxSize) / width);
+//         width = maxSize;
+//       }
+//     } else {
+//       if (height > maxSize) {
+//         width = Math.round((width * maxSize) / height);
+//         height = maxSize;
+//       }
+//     }
+
+//     const canvas = document.createElement("canvas");
+//     canvas.width = width;
+//     canvas.height = height;
+
+//     const ctx = canvas.getContext("2d");
+//     ctx.clearRect(0, 0, width, height);
+//     ctx.drawImage(img, 0, 0, width, height);
+
+//     canvas.toBlob(
+//       (blob) => {
+//         selectedFile.value = new File([blob], file.name, { type: "image/jpeg" });
+//         imageUrl.value = URL.createObjectURL(blob);
+//       },
+//       "image/jpeg",
+//       0.8 // JPEG 압축 품질은 0.8 정도
+//     );
+//   };
+
+//   reader.readAsDataURL(file);
+// };
+
 
 // const handleFileChange = (event) => {
 //   selectedFile.value = event.target.files[0];
@@ -59,9 +109,20 @@ const submitProfileImage = async () => {
     alert("프로필 사진이 변경되었습니다!");
     goToMyPage();
   } catch (error) {
-    alert("프로필 사진 변경에 실패했습니다.");
-    console.error("프로필 사진 변경 오류:", error.response ? error.response.data : error.message);
+    // console.log(error.response);
+
+    let msg;
+    if (error.message === "Network Error") {
+      msg = "파일 크기가 너무 큽니다. 최대 1MB 이하로 업로드 해주세요.";
+    } else {
+      msg =
+        error.response?.data?.message ||
+        error.message ||
+        "알 수 없는 오류가 발생했습니다.";
+    }
+    alert(msg);
   }
+
 };
 </script>
 
