@@ -3,8 +3,6 @@
     <MainHeader @openSidebar="openSidebar" />
     <main class="content">
       <router-view />
-      <!-- 사이드바 -->
-      <NotificationsSidebar v-if="isSidebarOpen" @closeSidebar="closeSidebar" />
     </main>
     <MainFooter />
   </div>
@@ -14,13 +12,11 @@
 import { ref } from "vue";
 import MainHeader from "./components/MainHeader.vue";
 import MainFooter from "./components/MainFooter.vue";
-import NotificationsSidebar from "./components/NotificationsSidebar.vue";
 
 export default {
   components: {
     MainHeader,
     MainFooter,
-    NotificationsSidebar,
   },
   setup() {
     const isSidebarOpen = ref(false);

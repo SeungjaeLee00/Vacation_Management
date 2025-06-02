@@ -3,18 +3,29 @@
     <h2>휴가 신청</h2>
     <form @submit.prevent="submitVacation">
       <label for="date-picker">휴가 날짜</label>
-      <input id="date-picker" type="text" placeholder="날짜를 선택하세요" required />
-      
+      <input
+        id="date-picker"
+        type="text"
+        placeholder="날짜를 선택하세요"
+        required
+      />
+
       <!-- 결재자 검색 필드 -->
-       <div>
+      <div>
         <label>결재자 선택</label>
         <div class="selectApprover">
-          <button type="button" @click="approverModalVisible = true">결재자 선택</button>
+          <button type="button" @click="approverModalVisible = true">
+            결재자 선택
+          </button>
         </div>
 
         <!-- 선택된 결재자 표시 -->
         <div v-if="selectedApprover" class="selectedApprover">
-          <span>{{ selectedApprover.name }} ({{ selectedApprover.positionName }})</span>
+          <span
+            >{{ selectedApprover.name }} ({{
+              selectedApprover.positionName
+            }})</span
+          >
           <button type="button" @click="removeApprover">X</button>
         </div>
       </div>
@@ -24,12 +35,16 @@
         v-if="approverModalVisible"
         v-model="approverModalVisible"
         @select="handleApproverSelect"
-       />
+      />
 
       <label>휴가 종류 및 사용 일수</label>
       <div v-for="type in vacationTypes" :key="type" class="vacation-type-row">
         <label>
-          <input type="checkbox" v-model="selectedVacationTypes" :value="type" />
+          <input
+            type="checkbox"
+            v-model="selectedVacationTypes"
+            :value="type"
+          />
           {{ type }}
         </label>
         <input
@@ -43,17 +58,24 @@
         />
 
         <!-- 1일 미만이면 시간 선택 UI 보이게 -->
-        <div v-if="usedDaysByType[type] > 0 && usedDaysByType[type] < 1" class="time-inputs">
+        <div
+          v-if="usedDaysByType[type] > 0 && usedDaysByType[type] < 1"
+          class="time-inputs"
+        >
           <label>시작 시간</label>
           <input type="time" v-model="startTimes[type]" />
           <label>종료 시간</label>
           <input type="time" v-model="endTimes[type]" />
         </div>
-
       </div>
 
       <label for="reason">휴가 사유</label>
-      <textarea id="reason" v-model="reason" placeholder="사유를 입력하세요." required></textarea>
+      <textarea
+        id="reason"
+        v-model="reason"
+        placeholder="사유를 입력하세요."
+        required
+      ></textarea>
 
       <div class="button-group">
         <button type="submit" class="submit-btn">등록</button>
@@ -67,7 +89,7 @@
 import { ref, onMounted, watch, reactive } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
@@ -82,15 +104,14 @@ const reason = ref("");
 const vacationTypes = ref(["연차", "하계휴가", "대체휴가", "포상휴가"]);
 const selectedVacationTypes = ref([]);
 const usedDaysByType = ref({
-  "연차": 0,
-  "하계휴가": 0,
-  "대체휴가": 0,
-  "포상휴가": 0,
+  연차: 0,
+  하계휴가: 0,
+  대체휴가: 0,
+  포상휴가: 0,
 });
-const vacationBalances = ref([]);  // 잔여 휴가 수량을 저장할 변수
-const selectedApprover = ref(null);  // 선택된 결제자
+const vacationBalances = ref([]); // 잔여 휴가 수량을 저장할 변수
+const selectedApprover = ref(null); // 선택된 결제자
 const approverModalVisible = ref(false);
-
 
 // 선택된 결재자 삭제
 const removeApprover = () => {
@@ -105,9 +126,12 @@ const handleApproverSelect = (approver) => {
 // 휴가 잔여 수량 가져오기
 const fetchVacationBalances = async () => {
   try {
-    const response = await axios.get("http://localhost:8088/api/vacations/balance", {
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      "http://localhost:8088/api/vacations/balance",
+      {
+        withCredentials: true,
+      }
+    );
     vacationBalances.value = response.data;
     // console.log(vacationBalances.value);
   } catch (error) {
@@ -132,12 +156,18 @@ const submitVacation = async () => {
 
   // 휴가 종류별 잔여 수량 확인
   for (const type of selectedVacationTypes.value) {
-    const vacationBalance = vacationBalances.value.find(v => v.vacationTypeName === type);
+    const vacationBalance = vacationBalances.value.find(
+      (v) => v.vacationTypeName === type
+    );
     const usedDays = usedDaysByType[type];
 
     if (!vacationBalance || vacationBalance.remainingDays < usedDays) {
-      alert(`${type} 휴가가 부족합니다. 남은 일수는 ${vacationBalance ? vacationBalance.remainingDays : 0}일입니다.`);
-      return;  // 부족하면 바로 리턴
+      alert(
+        `${type} 휴가가 부족합니다. 남은 일수는 ${
+          vacationBalance ? vacationBalance.remainingDays : 0
+        }일입니다.`
+      );
+      return; // 부족하면 바로 리턴
     }
   }
 
@@ -159,29 +189,37 @@ const submitVacation = async () => {
     프론트에서 선택된 날짜가 실제로 하루 땡겨져서 저장되는 문제 발생
       -> 날짜 +1 하는 거로 하드코딩함.. 근데 이건 임시임. 다시 방법 생각해야 함. 타임존 문젠가ㅜㅜ
     */
-    const startAt = dayjs(vacationDate.value[0]).add(1, 'day').format('YYYY-MM-DD');
-    const endAt = dayjs(vacationDate.value[vacationDate.value.length - 1]).add(1, 'day').format('YYYY-MM-DD');
+    const startAt = dayjs(vacationDate.value[0])
+      .add(1, "day")
+      .format("YYYY-MM-DD");
+    const endAt = dayjs(vacationDate.value[vacationDate.value.length - 1])
+      .add(1, "day")
+      .format("YYYY-MM-DD");
 
     const vacationData = {
       startAt,
       endAt,
       usedVacations,
       reason: reason.value,
-      approverEmployeeId: selectedApprover.value.employeeId
+      approverEmployeeId: selectedApprover.value.employeeId,
     };
-    
+
     // 휴가 신청 API
-    await axios.post("http://localhost:8088/api/vacations/request", vacationData, {
-      withCredentials: true,
-    });
+    await axios.post(
+      "http://localhost:8088/api/vacations/request",
+      vacationData,
+      {
+        withCredentials: true,
+      }
+    );
     alert("휴가 신청이 완료되었습니다!");
     router.push("/home");
   } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        console.log("error.response.data.message", error.response.data.message)
+    if (error.response && error.response.data && error.response.data.message) {
+      console.log("error.response.data.message", error.response.data.message);
       alert(error.response.data.message);
     } else {
-      alert('알 수 없는 오류가 발생했습니다.');
+      alert("알 수 없는 오류가 발생했습니다.");
     }
   }
 };
@@ -191,10 +229,10 @@ const cancel = () => {
   reason.value = "";
   selectedVacationTypes.value = [];
   usedDaysByType.value = {
-    "연차": 0,
-    "하계휴가": 0,
-    "대체휴가": 0,
-    "포상휴가": 0,
+    연차: 0,
+    하계휴가: 0,
+    대체휴가: 0,
+    포상휴가: 0,
   };
   router.push("/home");
 };
@@ -205,11 +243,12 @@ onMounted(() => {
     dateFormat: "Y-m-d",
     locale: Korean,
     onChange: (selectedDates) => {
-      vacationDate.value = selectedDates.map((date) => date.toISOString().split("T")[0]);
+      vacationDate.value = selectedDates.map(
+        (date) => date.toISOString().split("T")[0]
+      );
     },
   });
   fetchVacationBalances();
-  // fetchApprovers();
 });
 
 // watch로 selectedVacationTypes 감시하기~
@@ -245,7 +284,7 @@ h2 {
 form {
   display: flex;
   flex-direction: column;
-  gap:15px;
+  gap: 15px;
 }
 
 label {
@@ -296,8 +335,8 @@ select {
   gap: 10px;
   margin-top: 10px;
   padding: 8px;
-  background-color: #f7f7f7; 
-  border-radius: 12px; 
+  background-color: #f7f7f7;
+  border-radius: 12px;
   max-width: 400px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 살짝 그림자 */
 }
@@ -324,9 +363,8 @@ select {
 }
 
 .selectedApprover button:hover {
-  background-color: #e24e50; 
+  background-color: #e24e50;
 }
-
 
 input,
 textarea {
@@ -365,7 +403,6 @@ button {
 
 .cancel-btn {
   background-color: #ccc;
-  
 }
 
 .cancel-btn:hover {
@@ -380,7 +417,7 @@ button {
 }
 
 .vacation-type-row label {
-  flex: 1; 
+  flex: 1;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -388,7 +425,7 @@ button {
 
 .vacation-type-row input[type="checkbox"] {
   margin-right: 8px;
-  transform: scale(1.2); 
+  transform: scale(1.2);
 }
 
 .vacation-type-row input[type="number"] {
@@ -401,9 +438,8 @@ button {
   transition: border-color 0.2s ease;
 }
 
-
 .vacation-type-row input[type="number"]:focus {
-  border-color: #409eff; 
+  border-color: #409eff;
   outline: none;
 }
 
