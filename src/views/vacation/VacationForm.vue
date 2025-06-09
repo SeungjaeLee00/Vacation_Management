@@ -154,6 +154,34 @@ const submitVacation = async () => {
     return;
   }
 
+  // 선택한 날짜 수
+  const getDateDiff = (start, end) => {
+    const startDate = dayjs(start);
+    const endDate = dayjs(end);
+    return endDate.diff(startDate, "day") + 1;
+  };
+
+  const selectedDateCount = getDateDiff(
+    vacationDate.value[0],
+    vacationDate.value[vacationDate.value.length - 1]
+  );
+
+  // 총 사용 일수 계산
+  const totalUsedDays = selectedVacationTypes.value.reduce((sum, type) => {
+    return sum + (usedDaysByType.value[type] || 0);
+  }, 0);
+
+  // console.log("선택한 날짜 수", selectedDateCount);
+  // console.log("총 사용 일수", totalUsedDays);
+
+  // 날짜 수와 사용 일수가 맞지 않으면 예외 처리
+  if (totalUsedDays !== selectedDateCount) {
+    alert(
+      `선택한 날짜 수 (${selectedDateCount}일)와 사용 일수 (${totalUsedDays}일)가 일치하지 않습니다.`
+    );
+    return;
+  }
+
   // 휴가 종류별 잔여 수량 확인
   for (const type of selectedVacationTypes.value) {
     const vacationBalance = vacationBalances.value.find(
